@@ -1,0 +1,94 @@
+{%extends 'layout.html'%}
+{%block content%}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Update Customer Screen</legend>
+            <div class="form-group">
+                {{ form.ssnid.label(class="form-control-label")}}
+                
+                {{ form.ssnid(class="form-control form-control-lg", readonly=true) }}
+                
+            </div>
+
+            <div class="form-group">
+                {{ form.cid.label(class="form-control-label")}}
+                
+                {{ form.cid(class="form-control form-control-lg", readonly=true) }}
+                
+            </div>
+
+            <div class="form-group">
+                {{ form.oldname.label(class="form-control-label")  }}
+                
+                {{ form.oldname(class="form-control form-control-lg" ,readonly=true) }}
+                
+            </div>
+            <div class="form-group">
+                {{ form.newname.label(class="form-control-label")+"*"  }}
+                {% if form.newname.errors %}
+                    {{ form.newname(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.newname.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.newname(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.oldage.label(class="form-control-label") }}
+                
+                {{ form.oldage(class="form-control form-control-lg", readonly=true) }}
+                
+            </div>
+            <div class="form-group">
+                {{ form.newage.label(class="form-control-label")+"*"  }}
+                {% if form.newage.errors %}
+                    {{ form.newage(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.newage.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.newage(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.oldaddress.label(class="form-control-label") }}
+                
+                {{ form.oldaddress(class="form-control form-control-lg", readonly=true) }}
+                
+            </div>
+            <div class="form-group">
+                {{ form.newaddress.label(class="form-control-label")+"*"  }}
+                {% if form.newaddress.errors %}
+                    {{ form.newaddress(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.newaddress.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.newaddress(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            
+        </fieldset>
+        <div><p style="color: red;">* all fields are requried</p></div>
+        <div class="row justify-content-center">
+            <div style="padding: 10px;" class="form-group">
+                {{ form.update(class="btn btn-outline-info") }}
+            </div>
+            
+        </div>
+       
+        
+    </form>
+</div>
+{%endblock content%}
