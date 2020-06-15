@@ -49,9 +49,9 @@
                     Account Management
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="{{ url_for('account') }}">Account</a>
-                    <a class="dropdown-item" href="{{ url_for('home') }}">Home</a>
-                    <a class="dropdown-item" href="{{ url_for('about') }}">About</a>
+                    <a class="dropdown-item" href="{{ url_for('create_account') }}">Create Account</a>
+                    <a class="dropdown-item" href="{{ url_for('search_account',tag='delete') }}">Delete Account</a>
+                    
                   </div>
                 </li>
 
@@ -71,9 +71,9 @@
                     Account Operations
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="{{ url_for('account') }}">Account</a>
-                    <a class="dropdown-item" href="{{ url_for('home') }}">Home</a>
-                    <a class="dropdown-item" href="{{ url_for('about') }}">About</a>
+                    <a class="dropdown-item" href="{{ url_for('search_account',tag='deposit') }}">Deposit</a>
+                    <a class="dropdown-item" href="{{ url_for('search_account',tag='withdraw') }}">Withdraw</a>
+                    <a class="dropdown-item" href="{{ url_for('search_account',tag='transfer') }}">Transfer</a>
                   </div>
                 </li>
                 <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>

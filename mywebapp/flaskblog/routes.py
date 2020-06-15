@@ -3,7 +3,7 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt
-from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm,  CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm
+from flaskblog.forms import RegistrationForm, LoginForm,DepoWithdrawForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
 from flaskblog.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -44,7 +44,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route("/")
+@app.route("/",methods=['GET', 'POST'])
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -66,41 +66,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-
-def save_picture(form_picture):
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
-
-    output_size = (125, 125)
-    i = Image.open(form_picture)
-    i.thumbnail(output_size)
-    i.save(picture_path)
-
-    return picture_fn
-
-
-@app.route("/account", methods=['GET', 'POST'])
-@login_required
-def account():
-    form = UpdateAccountForm()
-    if form.validate_on_submit():
-        if form.picture.data:
-            picture_file = save_picture(form.picture.data)
-            current_user.image_file = picture_file
-        current_user.username = form.username.data
-        current_user.email = form.email.data
-        db.session.commit()
-        flash('Your account has been updated!', 'success')
-        return redirect(url_for('account'))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-        form.email.data = current_user.email
-    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
-    return render_template('account.html', title='Account',
-                           image_file=image_file, form=form)
-
 @app.route("/user/<string:username>")
 def user_posts(username):
     page = request.args.get('page', 1, type=int)
@@ -118,7 +83,7 @@ def search_customer(tag):
     form=SearchCustomerForm()
     if form.validate_on_submit():
         
-        flash('Account found!', 'success')
+        flash('Customer found!', 'success')
         if tag =='update':
             return redirect(url_for('update_customer',post_id='1'))
         else:
@@ -126,6 +91,27 @@ def search_customer(tag):
         
     return render_template('customer/update.html',title='search customer',form=form)
 
+
+@app.route("/searchaccount/<tag>", methods=['GET', 'POST'])
+@login_required
+def search_account(tag):
+    form=SearchAccountrForm()
+    if form.validate_on_submit():
+        flash('Account found!', 'success')
+        if tag =='delete':
+            return redirect(url_for('delete_account',post_id='1'))
+        elif tag=='deposit':
+             return redirect(url_for('deposit',post_id='1'))
+        elif  tag=='withdraw':
+            return redirect(url_for('withdraw',post_id='1'))
+        elif tag=='transfer':
+            return redirect(url_for('transfer',post_id='1'))
+        else:
+            flash('Url does not exist','danger')   
+    else:  
+        
+        return render_template('account/search_account.html',title='search account',form=form)   
+    
 
 
 @app.route("/createcustomer/<int:post_id>/delete",)
@@ -140,16 +126,28 @@ def delete_customer(post_id):
     form.address.data='mumbai'
     return render_template('customer/delete_customer.html',title='Delete customer',legend='Delete Customer',form=form)
 
-@app.route("/post/<int:post_id>/delete",)
+@app.route("/createaccount/<int:post_id>/delete", methods=['GET', 'POST'])
 @login_required
-def removeCustomer(post_id):
+def delete_account(post_id):
     post = Post.query.get_or_404(post_id)
-    form=CreateCustomerForm()
-    if post.author != current_user:
-        abort(403)
-    db.session.delete(post)
-    db.session.commit()
-    flash('Your post has been deleted!', 'success')
+    form=AccountForm()
+    form.aid.data='123456789'
+    form.acctype.data='savings'
+    print(form.errors)
+    return render_template('account/delete_account.html',title='Delete accouunt',legend='Delete account',form=form)
+
+
+@app.route("/customer/<int:post_id>/delete", methods=['GET', 'POST'])
+def removeCustomer(post_id):
+    
+    flash('Your customer has been deleted!', 'success')
+    return redirect(url_for('home'))
+
+
+@app.route("/account/<int:post_id>/delete", methods=['GET', 'POST'])
+def removeAccount(post_id):
+    
+    flash('Your Account has been deleted!', 'success')
     return redirect(url_for('home'))
 
 
@@ -159,7 +157,9 @@ def createCustomer():
         
         form = CreateCustomerForm()
         if form.validate_on_submit():
+            
             print("added")
+        print(form.errors)
         return render_template('customer/create_customer.html',legend='Delete Customer', title='CreateCustomer', form=form)
         
     else:
@@ -167,25 +167,78 @@ def createCustomer():
         flash('Please login first!', 'danger')
         return redirect(url_for('login'))
     
-@app.route("/createcustomer/<int:post_id>/update")
+@app.route("/createcustomer/<int:post_id>/update",methods=['POST','GET'])
 @login_required
 def update_customer(post_id):
     post = Post.query.get_or_404(post_id)
     
     form = UpdateCustomerForm()
     if form.validate_on_submit():
-        post.title = form.title.data
-        post.content = form.content.data
-        db.session.commit()
-        flash('Your post has been updated!', 'success')
-        return redirect(url_for('post', post_id=post.id))
+        print('updated')
+        flash('Your Customer has been updated!', 'success')
+        
     elif request.method == 'GET':
         form.ssnid.data = '123456'
         form.cid.data = '120544'
         form.oldname.data='mr. shah'
         form.oldage.data="23"
         form.oldaddress.data='mumbai'
+    print(form.errors)
     return render_template('customer/update_customer.html', title='Update Post',form=form)
+
+@app.route("/createaccount", methods=['GET', 'POST'])
+def create_account():
+    if current_user.is_authenticated:
+        
+        form = AccountForm()
+        if form.validate_on_submit():
+            flash("added",'success')
+           
+        print(form.errors)
+        return render_template('account/create_account.html',legend='Create Account', title='Create Account', form=form)
+    
+    else:
+        
+        flash('Please login first!', 'danger')
+        return redirect(url_for('login'))
+    
+@app.route("/searchaccount/<int:post_id>/deposit",methods=['POST','GET'])
+@login_required
+def deposit(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    form = DepoWithdrawForm(acctype=1)
+    if form.validate_on_submit():
+        form.balance.data=3000
+        flash('Amount desposited!', 'success')
+        
+    else:
+        form.cid.data = 123456789
+        form.aid.data = 120544
+        #form.acctype.default='type1'
+        form.balance.data=2300
+    return render_template('account/deposit_withdraw.html',label='Deposit Amount' ,title='Deposit',form=form)
+
+    
+@app.route("/searchaccount/<int:post_id>/withdraw",methods=['POST','GET'])
+@login_required
+def withdraw(post_id):
+    post = Post.query.get_or_404(post_id)
+    form = DepoWithdrawForm(acctype=2)
+    if form.validate_on_submit():
+
+        flash('Amount withdrawed!', 'success')
+        print('withdraweddddd')
+            
+    else:
+        #request.method == 'GET':
+        form.cid.data = 123456789
+        form.aid.data = 120544
+        #form.acctype.data=2
+        form.balance.data=2300
+        print(form.errors)
+    return render_template('account/deposit_withdraw.html',label='Withdraw Amount' ,title='Withdraw',form=form)
+
     
     
 
