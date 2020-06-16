@@ -1,30 +1,10 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, SelectField
+from wtforms import StringField, PasswordField,SubmitField, BooleanField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
+from wtforms.fields.html5 import DateField 
 from flaskblog.models import User
-
-
-class RegistrationForm(FlaskForm):
-    username = StringField('Username',
-                           validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email',
-                        validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('That username is taken. Please choose a different one.')
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('That email is taken. Please choose a different one.')
 
 
 class LoginForm(FlaskForm):
@@ -65,6 +45,22 @@ class DepoWithdrawForm(FlaskForm):
         if not deposit.data>0:
             raise ValidationError('customer does not exist.')
 
+class TransferForm(FlaskForm):
+    cid = IntegerField('Customer Id', validators=[DataRequired()])
+    sourcetype =SelectField('Source Account Type',choices=[('1','current'),('2','savings')])
+    targettype =SelectField('Target Account Type',choices=[('1','current'),('2','savings')])
+    transferamt = IntegerField('Transfer Amount', validators=[DataRequired()])
+    srcBalbf = IntegerField('Source Balance before')
+    srcBalaf = IntegerField('Source Balance after')
+    trgBalbf = IntegerField('Target Balance before')
+    trgBalaf = IntegerField('Targer Balance after')
+
+    transfer = SubmitField('Transfer')
+    
+   
+    def validate_transferamt(self,transferamt):
+        if not transferamt.data>0:
+            raise ValidationError('customer does not exist.')
 
 class SearchAccountrForm(FlaskForm):
     cid = IntegerField('Customer Id', validators=[DataRequired()])
@@ -150,3 +146,9 @@ class UpdateCustomerForm(FlaskForm):
         if user:
             raise ValidationError('That age is taken. Please choose a different one.')
     
+class AccountStatementForm(FlaskForm):
+    aid = IntegerField('Account ID', )
+    lasttr =SelectField('Last N transcations',choices=[('1','1'),('2','2'),('3','3'),('4','4'),('5','5')], validators=[DataRequired()])
+    startdate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
+    enddate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
+    submit=SubmitField('submit')

@@ -3,7 +3,7 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt
-from flaskblog.forms import RegistrationForm, LoginForm,DepoWithdrawForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
+from flaskblog.forms import  LoginForm,DepoWithdrawForm,AccountStatementForm,TransferForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
 from flaskblog.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -19,30 +19,15 @@ if not user:
 
 @app.route("/home")
 def home():
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('home.html', posts=posts)
-
-
+    return render_template('home.html')
 
 @app.route("/about")
 def about():
     return render_template('about.html', title='About')
 
-
-@app.route("/register", methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+@app.route("/contact")
+def contact():
+    return render_template('contact.html', title='Contact')
 
 @app.route("/",methods=['GET', 'POST'])
 @app.route("/login", methods=['GET', 'POST'])
@@ -66,15 +51,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route("/user/<string:username>")
-def user_posts(username):
-    page = request.args.get('page', 1, type=int)
-    user = User.query.filter_by(username=username).first_or_404()
-    posts = Post.query.filter_by(author=user)\
-        .order_by(Post.date_posted.desc())\
-        .paginate(page=page, per_page=5)
-    return render_template('user_posts.html', posts=posts, user=user)
-
 
 
 @app.route("/searchcustomer/<tag>", methods=['GET', 'POST'])
@@ -86,6 +62,7 @@ def search_customer(tag):
         flash('Customer found!', 'success')
         if tag =='update':
             return redirect(url_for('update_customer',post_id='1'))
+        
         else:
              return redirect(url_for('delete_customer',post_id='1'))   
         
@@ -106,6 +83,8 @@ def search_account(tag):
             return redirect(url_for('withdraw',post_id='1'))
         elif tag=='transfer':
             return redirect(url_for('transfer',post_id='1'))
+        elif tag=='statement':
+            return redirect(url_for('statement',post_id='1'))
         else:
             flash('Url does not exist','danger')   
     else:  
@@ -238,6 +217,44 @@ def withdraw(post_id):
         form.balance.data=2300
         print(form.errors)
     return render_template('account/deposit_withdraw.html',label='Withdraw Amount' ,title='Withdraw',form=form)
+
+
+@app.route("/transfer/<int:post_id>",methods=['POST','GET'])
+@login_required
+def transfer(post_id):
+    
+    form = TransferForm()
+    if form.validate_on_submit():
+        flash('Amount transfered!', 'success')
+        print('transfered')
+
+    form.cid.data=123456789
+    form.srcBalbf.data=1000
+    form.srcBalaf.data=3000
+    form.trgBalbf.data=1000
+    form.trgBalaf.data=500  
+    print(form.errors)
+    return render_template('account/transfer.html',label='Withdraw Amount',legend='Transfer amount' ,title='Withdraw',form=form)
+
+@app.route("/statement/<int:post_id>",methods=['POST','GET'])
+@login_required
+def statement(post_id):
+    
+    form = AccountStatementForm()
+    if form.validate_on_submit():
+        flash('Amount transfered!', 'success')
+        print('show table')
+
+    form.aid.data=12345678
+     
+    print(form.errors)
+    return render_template('account/accstatement.html',label='Withdraw Amount',legend='Account statement' ,title='Withdraw',form=form)
+
+@app.route("/status/<tags>",methods=['POST','GET'])
+@login_required
+def status(tags):
+ 
+    return render_template('customer/customer_accstatus.html',tag=tags,legend='Account statement' ,title='Withdraw')
 
     
     

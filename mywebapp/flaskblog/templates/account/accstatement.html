@@ -1,0 +1,124 @@
+{% extends 'layout.html'%}
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">{{legend}}</legend>
+            <div class="form-group">
+                {{ form.aid.label(class="form-control-label")+"*" }}
+                {% if form.aid.errors %}
+                    {{ form.aid(class="form-control form-control-lg is-invalid",readonly=true) }}
+                    <div class="invalid-feedback">
+                        {% for error in form.aid.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.aid(class="form-control form-control-lg",readonly=true ) }}
+                {% endif %}
+            </div>
+
+            <div  class="form-group">
+                <div  class="radio">
+                    <label><input type="radio" onclick="radio_form()" name="optradio" value="tx" id="option1" checked>Last N Transactions</label>
+                  </div>
+                  <div class="radio">
+                    <label><input type="radio" onclick="radio_form()" name="optradio" id="option2" value="dates" >Start-end Dates</label>
+                  </div>
+            </div>
+            
+            <div id="lasttx" >
+                <div class="form-group">
+                    {{ form.lasttr.label(class="form-control-label")+"*"  }}
+                    {% if form.lasttr.errors %}
+                        {{ form.lasttr(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.lasttr.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lasttr }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div id="dates" style="display: none;">
+                <div class="form-group">
+                    {{ form.startdate.label(class="form-control-label")+"*"  }}
+                    {% if form.startdate.errors %}
+                        {{ form.startdate(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.startdate.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.startdate }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.enddate.label(class="form-control-label")+"*"  }}
+                    {% if form.enddate.errors %}
+                        {{ form.enddate(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.enddate.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.enddate }}
+                    {% endif %}
+                </div>
+            </div>
+            
+
+
+        
+           
+        </fieldset>
+        <div><p style="color: red;">* all fields are requried</p></div>
+        <div class="row">
+            <div style="padding: 10px;" class="form-group">
+                {{ form.submit(class="btn btn-outline-info" ,id='showstm') }}
+            </div>
+            
+        </div>
+      
+        
+    </form>
+
+</div>
+    
+<div id="tables" style="padding-bottom: 10px; display: none;">
+    <table>
+        <tr>
+          <th>Customer Id</th>
+          <th>Customer SSN Id</th>
+          <th>Status</th>
+          <th>Message</th>
+          <th>Last updated</th>
+          <th>OPerations</th>
+          <th>View Profile</th>
+        </tr>
+        {% for i in range(10)%}
+
+            <tr>
+                <td>123456789</td>
+                <td>111222333</td>
+                <td>active</td>
+                <td>{{i}}</td>
+                <td>20-05-20</td>
+                <td><a href="#">refresh</a></td>
+                <td><a href="#">veiw profile</a></td>
+             </tr>
+        {%endfor%}
+        
+        
+      </table>
+      
+   </div>
+
+{% endblock content %}
+
