@@ -1,0 +1,40 @@
+{%extends 'layout.html'%}
+{%block content%}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Search account</legend>
+            <div class="form-group">
+                {{ form.cid.label(class="form-control-label") }}
+                {% if form.cid.errors %}
+                    {{ form.cid(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.cid.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.cid(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.aid.label(class="form-control-label") }}
+                {% if form.aid.errors %}
+                    {{ form.aid(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.aid.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.aid(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.search(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{%endblock content%}

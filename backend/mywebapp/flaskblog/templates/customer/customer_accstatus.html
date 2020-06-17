@@ -1,0 +1,74 @@
+{%extends 'layout.html'%}
+{%block content%}
+ 
+
+
+    {%if tag=="cust"%}
+        <div><h3>
+            Customer Status
+        </h3></div>
+        <div id="customertables" style="padding-bottom: 10px; display: block;">
+            <table>
+                <tr>
+                <th>Customer Id</th>
+                <th>Customer SSN Id</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Last updated</th>
+                <th>Operations</th>
+                <th>View Profile</th>
+                </tr>
+                {% for i in range(10)%}
+
+                    <tr>
+                        <td>123456789</td>
+                        <td>111222333</td>
+                        <td>active</td>
+                        <td>{{i}}</td>
+                        <td>20-05-20</td>
+                        <td><a href="#">refresh</a></td>
+                        <td><a href="#">veiw profile</a></td>
+                    </tr>
+                {%endfor%}
+                
+                
+            </table>
+            
+        </div>
+
+    {%elif tag=='acc'%}
+        <div><h3>
+            Account Status
+        </h3></div>
+        <div id="accounttables" style="padding-bottom: 10px; display: block;">
+            <table>
+                <tr>
+                <th>Customer Id</th>
+                <th>Customer SSN Id</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Last updated</th>
+                <th>Operations</th>
+                <th>View Profile</th>
+                </tr>
+                {% for i in range(10)%}
+
+                    <tr>
+                        <td>123456789</td>
+                        <td>111222333</td>
+                        <td>active</td>
+                        <td>{{i}}</td>
+                        <td>20-05-20</td>
+                        <td><a href="#">refresh</a></td>
+                        <td><a href="#">veiw profile</a></td>
+                    </tr>
+                {%endfor%}
+                
+                
+            </table>
+            
+        </div>
+    {%endif%}
+
+
+{%endblock content%}
