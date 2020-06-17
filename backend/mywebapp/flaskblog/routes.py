@@ -2,6 +2,7 @@ import os
 import secrets
 from random import randint
 from PIL import Image
+from datetime import datetime
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import  LoginForm,DepoWithdrawForm,AccountStatementForm,TransferForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
@@ -108,6 +109,7 @@ def update_customer(post_id):
         customer.name=form.newname.data
         customer.age=form.newage.data
         customer.address=form.newaddress.data
+        customer.last_updated=datetime.utcnow()
         db.session.commit()
         print('updated')
         flash('Your Customer has been updated!', 'success')
@@ -147,29 +149,33 @@ def removeCustomer(post_id):
 
 
 @app.route("/createaccount", methods=['GET', 'POST'])
+@login_required
 def create_account():
-    if current_user.is_authenticated:
-        
-        form = AccountForm()
-        if form.validate_on_submit():
-            
-            flash("added",'success')
-           
-        print(form.errors)
-        return render_template('account/create_account.html',legend='Create Account', title='Create Account', form=form)
+
     
-    else:
+    form = AccountForm()
+    if form.validate_on_submit():
+        acc=Account(accounttype=form.acctype.data,balance=form.deposit.data,acid=form.cid.data,status='Active')
+        db.session.add(acc)
+        db.session.commit()
+        flash("Account Created",'success')
         
-        flash('Please login first!', 'danger')
-        return redirect(url_for('login'))
+    print(form.errors)
+    return render_template('account/create_account.html',legend='Create Account', title='Create Account', form=form)
+
  
 
 
 @app.route("/searchaccount/<tag>", methods=['GET', 'POST'])
 @login_required
-def search_account(tag,post_id):
+def search_account(tag):
     form=SearchAccountrForm()
     if form.validate_on_submit():
+        
+        if form.cid.data==None:
+            account=Account.query.filter_by(aid=form.aid.data).first()
+        else:
+            account=Account.query.filter_by(acid=form.cid.data).first()
         flash('Account found!', 'success')
         if tag =='delete':
             return redirect(url_for('delete_account',post_id=account.aid))
@@ -193,19 +199,21 @@ def search_account(tag,post_id):
 @app.route("/createaccount/<int:post_id>/delete", methods=['GET', 'POST'])
 @login_required
 def delete_account(post_id):
-    post = Post.query.get_or_404(post_id)
+    account = Account.query.get_or_404(post_id)
     form=AccountForm()
     form.aid.data=account.aid
-    form.accounttype.data=account.accounttype
+    form.acctype.data=account.accounttype
     print(form.errors)
-    return render_template('account/delete_account.html',title='Delete accouunt',legend='Delete account',form=form)
+    return render_template('account/delete_account.html',account=account,title='Delete accouunt',legend='Delete account',form=form)
 
 
 
 
 @app.route("/account/<int:post_id>/delete", methods=['GET', 'POST'])
 def removeAccount(post_id):
-    
+    account = Account.query.get_or_404(post_id)
+    db.session.delete(account)
+    db.session.commit()
     flash('Your Account has been deleted!', 'success')
     return redirect(url_for('home'))
 
@@ -214,37 +222,39 @@ def removeAccount(post_id):
 @app.route("/searchaccount/<int:post_id>/deposit",methods=['POST','GET'])
 @login_required
 def deposit(post_id):
-    post = Post.query.get_or_404(post_id)
+    account = Account.query.get_or_404(post_id)
+
     
-    form = DepoWithdrawForm(acctype=1)
+    form = DepoWithdrawForm(acctype=account.accounttype)
     if form.validate_on_submit():
-        form.balance.data=1000
+        account.balance=account.balance+form.deposit.data
+        db.session.commit()
         flash('Amount desposited!', 'success')
         
     else:
-        form.cid.data = account.ccid
+        form.cid.data = account.acid
         form.aid.data = account.aid
-        #form.acctype.default='type1'
-        form.balance.data=account.deposit
+        form.balance.data=account.balance
     return render_template('account/deposit_withdraw.html',label='Deposit Amount' ,title='Deposit',form=form)
 
     
 @app.route("/searchaccount/<int:post_id>/withdraw",methods=['POST','GET'])
 @login_required
 def withdraw(post_id):
-    post = Post.query.get_or_404(post_id)
-    form = DepoWithdrawForm(acctype=2)
+    account = Account.query.get_or_404(post_id)
+    form = DepoWithdrawForm(acctype=account.accounttype)
     if form.validate_on_submit():
-
+        account.balance=account.balance-form.deposit.data
+        db.session.commit()
         flash('Amount withdrawed!', 'success')
         print('withdraweddddd')
             
     else:
-        #request.method == 'GET':
-        form.cid.data = account.ccid
+        
+        form.cid.data = account.acid
         form.aid.data = account.aid
-        #form.acctype.data=2
-        form.balance.data=account.deposit
+        
+        form.balance.data=account.balance
         print(form.errors)
     return render_template('account/deposit_withdraw.html',label='Withdraw Amount' ,title='Withdraw',form=form)
 
@@ -252,18 +262,42 @@ def withdraw(post_id):
 @app.route("/transfer/<int:post_id>",methods=['POST','GET'])
 @login_required
 def transfer(post_id):
-    
+    account=Account.query.get_or_404(post_id)
+    customer=Customer.query.filter_by(cid=account.acid).first()
     form = TransferForm()
     if form.validate_on_submit():
+        if form.sourcetype.data=='1':
+            saccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='1').first()
+            taccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='2').first()
+            saccount.balance=saccount.balance-form.transferamt.data
+            taccount.balance=taccount.balance+form.transferamt.data
+            db.session.commit()
+            
+            form.srcBalbf.data=saccount.balance+form.transferamt.data
+            form.srcBalaf.data=0 if form.transferamt.data==None else (saccount.balance)
+            form.trgBalbf.data=taccount.balance-form.transferamt.data
+            form.trgBalaf.data=0 if form.transferamt.data==None else (taccount.balance)
+            print(account)
+        elif form.sourcetype.data=='2':
+            saccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='2').first()
+            taccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='1').first()
+            saccount.balance=saccount.balance-form.transferamt.data
+            taccount.balance=taccount.balance+form.transferamt.data
+            db.session.commit()
+            form.srcBalbf.data=saccount.balance+form.transferamt.data
+            form.srcBalaf.data=0 if form.transferamt.data==None else (saccount.balance)
+            form.trgBalbf.data=taccount.balance-form.transferamt.data
+            form.trgBalaf.data=0 if form.transferamt.data==None else (taccount.balance)
+            print(account)  
+        
+
         flash('Amount transfered!', 'success')
         print('transfered')
-
-    form.cid.data=123456789
-    form.srcBalbf.data=1000
-    form.srcBalaf.data=3000
-    form.trgBalbf.data=1000
-    form.trgBalaf.data=500  
+    
+    form.cid.data=account.acid
     print(form.errors)
+    
+
     return render_template('account/transfer.html',label='Withdraw Amount',legend='Transfer amount' ,title='Withdraw',form=form)
 
 @app.route("/statement/<int:post_id>",methods=['POST','GET'])
@@ -283,8 +317,11 @@ def statement(post_id):
 @app.route("/status/<tags>",methods=['POST','GET'])
 @login_required
 def status(tags):
- 
-    return render_template('customer/customer_accstatus.html',tag=tags,legend='Account statement' ,title='Withdraw')
+    if tags=='cust':
+        data=Customer.query.all()
+    elif tags=='acc':
+        data=Account.query.all()    
+    return render_template('customer/customer_accstatus.html',tag=tags,items=data,legend='Account statement' ,title='Withdraw')
 
     
     

@@ -18,14 +18,14 @@
                 <th>Operations</th>
                 <th>View Profile</th>
                 </tr>
-                {% for i in range(10)%}
+                {% for item in items%}
 
                     <tr>
-                        <td>123456789</td>
-                        <td>111222333</td>
-                        <td>active</td>
-                        <td>{{i}}</td>
-                        <td>20-05-20</td>
+                        <td>{{item.cid}}</td>
+                        <td>{{item.ssnid}}</td>
+                        <td>{{item.status}}</td>
+                        <td>GG</td>
+                        <td>{{item.last_updated}}</td>
                         <td><a href="#">refresh</a></td>
                         <td><a href="#">veiw profile</a></td>
                     </tr>
@@ -51,14 +51,14 @@
                 <th>Operations</th>
                 <th>View Profile</th>
                 </tr>
-                {% for i in range(10)%}
+                {% for item in items%}
 
                     <tr>
-                        <td>123456789</td>
-                        <td>111222333</td>
-                        <td>active</td>
-                        <td>{{i}}</td>
-                        <td>20-05-20</td>
+                        <td>{{item.custm.cid}}</td>
+                        <td>{{item.custm.ssnid}}</td>
+                        <td>{{item.status}}</td>
+                        <td>GG</td>
+                        <td>{{item.last_updated}}</td>
                         <td><a href="#">refresh</a></td>
                         <td><a href="#">veiw profile</a></td>
                     </tr>

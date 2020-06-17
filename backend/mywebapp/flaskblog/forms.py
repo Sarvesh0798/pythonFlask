@@ -4,7 +4,7 @@ from flask_login import current_user
 from wtforms import StringField, PasswordField,SubmitField, BooleanField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange,Optional
 from wtforms.fields.html5 import DateField 
-from flaskblog.models import User, Customer
+from flaskblog.models import User, Customer, Account
 
 
 class LoginForm(FlaskForm):
@@ -40,12 +40,9 @@ class DepoWithdrawForm(FlaskForm):
     balance = IntegerField('Balance', validators=[DataRequired()])
     submit = SubmitField('Submit')
     
-    def validate_cid(self,cid):
-        if not cid.data==123456789:
-            raise ValidationError('customer does not exist.')
     def validate_deposit(self,deposit):
         if not deposit.data>0:
-            raise ValidationError('customer does not exist.')
+            raise ValidationError('Enter amount greater than 0')
 
 class TransferForm(FlaskForm):
     cid = IntegerField('Customer Id', validators=[DataRequired()])
@@ -61,16 +58,18 @@ class TransferForm(FlaskForm):
     
    
     def validate_transferamt(self,transferamt):
+        
         if not transferamt.data>0:
             raise ValidationError('customer does not exist.')
 
 class SearchAccountrForm(FlaskForm):
-    cid = IntegerField('Customer Id', validators=[DataRequired()])
-    aid = IntegerField('Account Id', validators=[DataRequired()])
+    cid = IntegerField('Customer Id', validators=[Optional()])
+    aid = IntegerField('Account Id', validators=[Optional()])
     search = SubmitField('Search')
 
     def validate_cid(self,cid):
-        if not cid.data==123456789:
+        account=Account.query.filter_by(acid=cid)
+        if not account:
             raise ValidationError('customer does not exist.')
 
 

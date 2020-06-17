@@ -33,19 +33,23 @@ class Customer(db.Model):
     last_updated = db.Column(db.DateTime,nullable = False, default = datetime.utcnow)
     customerstatus = db.relationship('Customerstatus', backref='customer', lazy='dynamic',primaryjoin="and_(Customer.ssnid==Customerstatus.cssnid,Customer.cid==Customerstatus.ccid,Customer.status==Customerstatus.cstatus)")
     operation = db.relationship('Accountoperation', backref='customer', lazy='dynamic', primaryjoin="and_(Customer.cid==Accountoperation.ccid,Customer.status==Accountoperation.cstatus)")
-                                                      
+    accountrelo=db.relationship('Account',backref='custm',lazy=True)
+
     def __repr__(self):
         return f"Customer('{self.cid}','{self.ssnid}','{self.name}','{self.age}','{self.address}','{self.city}','{self.state}','{self.status}','{self.last_updated}')"
 
 class Account(db.Model):
     __tablename__ = 'account'
-    aid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    aid = db.Column(db.Integer, primary_key=True)
+    acid=db.Column(db.Integer,db.ForeignKey('customer.cid'))
     accounttype= db.Column(db.String(100), unique=True, nullable=False)
-    deposit = db.Column(db.Integer,nullable=False )
+    balance = db.Column(db.Integer,nullable=False )
+    status = db.Column(db.String(100),nullable= False)
+    last_updated = db.Column(db.DateTime,nullable = False, default = datetime.utcnow)
     operation = db.relationship('Accountoperation', backref='account', lazy='dynamic', primaryjoin="and_(Account.accounttype==Accountoperation.aaccounttype,Account.aid==Accountoperation.aaid)")
-
+    customerrelo=db.relationship('Customer',backref='acc',lazy=True)
     def __repr__(self):
-        return f"Account('{self.aid}','{self.accounttype}','{self.deposit}')"
+        return f"Account('{self.aid}','{self.accounttype}','{self.balance}')"
 
 class Customerstatus(db.Model):
     __tablename__ = 'Customerstatus'
