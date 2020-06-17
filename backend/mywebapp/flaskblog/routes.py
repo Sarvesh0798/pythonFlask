@@ -1,29 +1,17 @@
 import os
 import secrets
-<<<<<<< HEAD
 from random import randint
-=======
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import  LoginForm,DepoWithdrawForm,AccountStatementForm,TransferForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
-<<<<<<< HEAD
 from flaskblog.models import User, Customer, Accountoperation, Customerstatus,Account
-=======
-from flaskblog.models import User, Post
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 from flask_login import login_user, current_user, logout_user, login_required
 
 
 db.create_all()
-<<<<<<< HEAD
 user=User.query.filter_by(username='admin').first()
 if user==None:
-=======
-user=User.query.filter_by(username='admin').one()
-if not user:
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
     hashed_password = bcrypt.generate_password_hash("ggbhai").decode('utf-8')
     user = User(username="admin", email="aa@gmail.com", password=hashed_password)
     db.session.add(user)
@@ -66,7 +54,6 @@ def logout():
 
 
 
-<<<<<<< HEAD
 @app.route("/createcustomer", methods=['GET', 'POST'])
 @login_required
 def createCustomer():
@@ -93,14 +80,11 @@ def createCustomer():
     
 
 
-=======
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 @app.route("/searchcustomer/<tag>", methods=['GET', 'POST'])
 @login_required
 def search_customer(tag):
     form=SearchCustomerForm()
     if form.validate_on_submit():
-<<<<<<< HEAD
         if form.cSsnid.data =='':
             customer=Customer.query.filter_by(cid=form.cCid.data).first()
         else:
@@ -184,27 +168,10 @@ def create_account():
 @app.route("/searchaccount/<tag>", methods=['GET', 'POST'])
 @login_required
 def search_account(tag,post_id):
-=======
-        
-        flash('Customer found!', 'success')
-        if tag =='update':
-            return redirect(url_for('update_customer',post_id='1'))
-        
-        else:
-             return redirect(url_for('delete_customer',post_id='1'))   
-        
-    return render_template('customer/update.html',title='search customer',form=form)
-
-
-@app.route("/searchaccount/<tag>", methods=['GET', 'POST'])
-@login_required
-def search_account(tag):
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
     form=SearchAccountrForm()
     if form.validate_on_submit():
         flash('Account found!', 'success')
         if tag =='delete':
-<<<<<<< HEAD
             return redirect(url_for('delete_account',post_id=account.aid))
         elif tag=='deposit':
              return redirect(url_for('deposit',post_id=account.aid))
@@ -214,17 +181,6 @@ def search_account(tag):
             return redirect(url_for('transfer',post_id=account.aid))
         elif tag=='statement':
             return redirect(url_for('statement',post_id=account.aid))
-=======
-            return redirect(url_for('delete_account',post_id='1'))
-        elif tag=='deposit':
-             return redirect(url_for('deposit',post_id='1'))
-        elif  tag=='withdraw':
-            return redirect(url_for('withdraw',post_id='1'))
-        elif tag=='transfer':
-            return redirect(url_for('transfer',post_id='1'))
-        elif tag=='statement':
-            return redirect(url_for('statement',post_id='1'))
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
         else:
             flash('Url does not exist','danger')   
     else:  
@@ -233,45 +189,18 @@ def search_account(tag):
     
 
 
-<<<<<<< HEAD
-=======
-@app.route("/createcustomer/<int:post_id>/delete",)
-@login_required
-def delete_customer(post_id):
-    post = Post.query.get_or_404(post_id)
-    form=CreateCustomerForm()
-    form.ssnid.data='123456789'
-    form.cid.data='123456789'
-    form.name.data='mr. shah'
-    form.age.data='23'
-    form.address.data='mumbai'
-    return render_template('customer/delete_customer.html',title='Delete customer',legend='Delete Customer',form=form)
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 
 @app.route("/createaccount/<int:post_id>/delete", methods=['GET', 'POST'])
 @login_required
 def delete_account(post_id):
     post = Post.query.get_or_404(post_id)
     form=AccountForm()
-<<<<<<< HEAD
     form.aid.data=account.aid
     form.accounttype.data=account.accounttype
-=======
-    form.aid.data='123456789'
-    form.acctype.data='savings'
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
     print(form.errors)
     return render_template('account/delete_account.html',title='Delete accouunt',legend='Delete account',form=form)
 
 
-<<<<<<< HEAD
-=======
-@app.route("/customer/<int:post_id>/delete", methods=['GET', 'POST'])
-def removeCustomer(post_id):
-    
-    flash('Your customer has been deleted!', 'success')
-    return redirect(url_for('home'))
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 
 
 @app.route("/account/<int:post_id>/delete", methods=['GET', 'POST'])
@@ -280,63 +209,8 @@ def removeAccount(post_id):
     flash('Your Account has been deleted!', 'success')
     return redirect(url_for('home'))
 
-<<<<<<< HEAD
 #----------------------------------------------------------------------------------------------#
    
-=======
-
-@app.route("/createcustomer", methods=['GET', 'POST'])
-def createCustomer():
-    if current_user.is_authenticated:
-        
-        form = CreateCustomerForm()
-        if form.validate_on_submit():
-            
-            print("added")
-        print(form.errors)
-        return render_template('customer/create_customer.html',legend='Delete Customer', title='CreateCustomer', form=form)
-        
-    else:
-        
-        flash('Please login first!', 'danger')
-        return redirect(url_for('login'))
-    
-@app.route("/createcustomer/<int:post_id>/update",methods=['POST','GET'])
-@login_required
-def update_customer(post_id):
-    post = Post.query.get_or_404(post_id)
-    
-    form = UpdateCustomerForm()
-    if form.validate_on_submit():
-        print('updated')
-        flash('Your Customer has been updated!', 'success')
-        
-    elif request.method == 'GET':
-        form.ssnid.data = '123456'
-        form.cid.data = '120544'
-        form.oldname.data='mr. shah'
-        form.oldage.data="23"
-        form.oldaddress.data='mumbai'
-    print(form.errors)
-    return render_template('customer/update_customer.html', title='Update Post',form=form)
-
-@app.route("/createaccount", methods=['GET', 'POST'])
-def create_account():
-    if current_user.is_authenticated:
-        
-        form = AccountForm()
-        if form.validate_on_submit():
-            flash("added",'success')
-           
-        print(form.errors)
-        return render_template('account/create_account.html',legend='Create Account', title='Create Account', form=form)
-    
-    else:
-        
-        flash('Please login first!', 'danger')
-        return redirect(url_for('login'))
-    
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 @app.route("/searchaccount/<int:post_id>/deposit",methods=['POST','GET'])
 @login_required
 def deposit(post_id):
@@ -344,7 +218,6 @@ def deposit(post_id):
     
     form = DepoWithdrawForm(acctype=1)
     if form.validate_on_submit():
-<<<<<<< HEAD
         form.balance.data=1000
         flash('Amount desposited!', 'success')
         
@@ -353,16 +226,6 @@ def deposit(post_id):
         form.aid.data = account.aid
         #form.acctype.default='type1'
         form.balance.data=account.deposit
-=======
-        form.balance.data=3000
-        flash('Amount desposited!', 'success')
-        
-    else:
-        form.cid.data = 123456789
-        form.aid.data = 120544
-        #form.acctype.default='type1'
-        form.balance.data=2300
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
     return render_template('account/deposit_withdraw.html',label='Deposit Amount' ,title='Deposit',form=form)
 
     
@@ -378,17 +241,10 @@ def withdraw(post_id):
             
     else:
         #request.method == 'GET':
-<<<<<<< HEAD
         form.cid.data = account.ccid
         form.aid.data = account.aid
         #form.acctype.data=2
         form.balance.data=account.deposit
-=======
-        form.cid.data = 123456789
-        form.aid.data = 120544
-        #form.acctype.data=2
-        form.balance.data=2300
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
         print(form.errors)
     return render_template('account/deposit_withdraw.html',label='Withdraw Amount' ,title='Withdraw',form=form)
 

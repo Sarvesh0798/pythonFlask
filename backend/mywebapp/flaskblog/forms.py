@@ -2,15 +2,9 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from wtforms import StringField, PasswordField,SubmitField, BooleanField, TextAreaField, IntegerField, SelectField
-<<<<<<< HEAD
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange,Optional
 from wtforms.fields.html5 import DateField 
 from flaskblog.models import User, Customer
-=======
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
-from wtforms.fields.html5 import DateField 
-from flaskblog.models import User
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 
 
 class LoginForm(FlaskForm):
@@ -29,7 +23,6 @@ class AccountForm(FlaskForm):
     submit = SubmitField('Submit')
     search = SubmitField('Search')
 
-<<<<<<< HEAD
     
     def validate_cid(self,cid):
         customer = Customer.query.filter_by(cid=cid.data).first()
@@ -38,14 +31,6 @@ class AccountForm(FlaskForm):
     def validate_deposit(self,deposit):
         if not deposit.data>0:
             raise ValidationError('Enter amount greater than 0')
-=======
-    def validate_cid(self,cid):
-        if not cid.data==123456789:
-            raise ValidationError('customer does not exist.')
-    def validate_deposit(self,deposit):
-        if not deposit.data>0:
-            raise ValidationError('customer does not exist.')
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
 
 class DepoWithdrawForm(FlaskForm):
     cid = IntegerField('Customer Id', validators=[DataRequired()])
@@ -91,13 +76,8 @@ class SearchAccountrForm(FlaskForm):
 
 
 class SearchCustomerForm(FlaskForm):
-<<<<<<< HEAD
     cSsnid = IntegerField('Customer ssnId', validators=[Optional()])
     cCid = IntegerField('Customer Id', validators=[Optional()])
-=======
-    cSsnid = IntegerField('Customer ssnId', validators=[DataRequired()])
-    cCid = IntegerField('Customer Id', validators=[DataRequired()])
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
     search = SubmitField('Search')
 
     def validate_cSsnid(self, cSsnid):
@@ -126,7 +106,6 @@ class CreateCustomerForm(FlaskForm):
     city =SelectField('City',choices=[('1','mumbai'),('2','umbai')], validators=[DataRequired()])
     submit = SubmitField('Submit')
     reset = SubmitField('Reset')
-<<<<<<< HEAD
 
     
     def validate_ssnid(self, ssnid):
@@ -137,18 +116,6 @@ class CreateCustomerForm(FlaskForm):
     def validate_address(self, address):
         customer = Customer.query.filter_by(address=address.data).first()
         if customer:
-=======
-    
-
-    def validate_ssnid(self, ssnid):
-        user = User.query.filter_by(username=ssnid.data).first()
-        if user:
-            raise ValidationError('That SSNid is taken. Please choose a different one.')
-
-    def validate_address(self, address):
-        user = User.query.filter_by(username=address.data).first()
-        if user:
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
             raise ValidationError('That address is taken. Please choose a different one.')
 
 class UpdateCustomerForm(FlaskForm):
@@ -168,7 +135,6 @@ class UpdateCustomerForm(FlaskForm):
     
 
     def validate_newname(self, newname):
-<<<<<<< HEAD
         customer = Customer.query.filter_by(name=newname.data).first()
         if customer:
             raise ValidationError('That name is taken. Please choose a different one.')
@@ -180,19 +146,6 @@ class UpdateCustomerForm(FlaskForm):
     def validate_newage(self, newage):
         customer = Customer.query.filter_by(age=newage.data).first()
         if customer:
-=======
-        user = User.query.filter_by(username=newname.data).first()
-        if user:
-            raise ValidationError('That name is taken. Please choose a different one.')
-
-    def validate_newaddress(self, newaddress):
-        user = User.query.filter_by(username=newaddress.data).first()
-        if user:
-            raise ValidationError('That address is taken. Please choose a different one.')
-    def validate_newage(self, newage):
-        user = User.query.filter_by(username=newage.data).first()
-        if user:
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
             raise ValidationError('That age is taken. Please choose a different one.')
     
 class AccountStatementForm(FlaskForm):
@@ -200,8 +153,4 @@ class AccountStatementForm(FlaskForm):
     lasttr =SelectField('Last N transcations',choices=[('1','1'),('2','2'),('3','3'),('4','4'),('5','5')], validators=[DataRequired()])
     startdate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
     enddate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
-<<<<<<< HEAD
     submit=SubmitField('submit')
-=======
-    submit=SubmitField('submit')
->>>>>>> c5ebdc3467f09a485195f438e5351d2825a7342e
