@@ -2,7 +2,8 @@ import os
 import secrets
 from random import randint
 from PIL import Image
-from datetime import datetime
+from datetime import datetime,date
+import pytz
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import  LoginForm,DepoWithdrawForm,AccountStatementForm,TransferForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
@@ -103,13 +104,15 @@ def search_customer(tag):
 @login_required
 def update_customer(post_id):
     customer = Customer.query.get_or_404(post_id)
-    
+    tz = pytz.timezone("Asia/Kolkata")
     form = UpdateCustomerForm()
     if form.validate_on_submit():
+        dateTime = tz.localize(datetime.date(), is_dst=None)
+        print(aware)
         customer.name=form.newname.data
         customer.age=form.newage.data
         customer.address=form.newaddress.data
-        customer.last_updated=datetime.utcnow()
+        customer.last_updated=dateTime
         db.session.commit()
         print('updated')
         flash('Your Customer has been updated!', 'success')
@@ -227,7 +230,13 @@ def deposit(post_id):
     
     form = DepoWithdrawForm(acctype=account.accounttype)
     if form.validate_on_submit():
+        a=datetime.now()
+        ts=a.timestamp()
+        _date=str(date.fromtimestamp(ts))
+
         account.balance=account.balance+form.deposit.data
+        accoperation=Accountoperation(message="deposit",last_updated=_date,aaccounttype=account.accounttype,ccid=account.acid,aaid=account.aid,amount=form.deposit.data)
+        db.session.add(accoperation)
         db.session.commit()
         flash('Amount desposited!', 'success')
         
@@ -244,10 +253,16 @@ def withdraw(post_id):
     account = Account.query.get_or_404(post_id)
     form = DepoWithdrawForm(acctype=account.accounttype)
     if form.validate_on_submit():
+        a=datetime.now()
+        ts=a.timestamp()
+        _date=str(date.fromtimestamp(ts))
+ 
         account.balance=account.balance-form.deposit.data
+        accoperation=Accountoperation(message="withdraw",last_updated=_date,aaccounttype=account.accounttype,ccid=account.acid,aaid=account.aid,amount=form.deposit.data)
+        db.session.add(accoperation)
         db.session.commit()
         flash('Amount withdrawed!', 'success')
-        print('withdraweddddd')
+        
             
     else:
         
@@ -259,6 +274,8 @@ def withdraw(post_id):
     return render_template('account/deposit_withdraw.html',label='Withdraw Amount' ,title='Withdraw',form=form)
 
 
+
+
 @app.route("/transfer/<int:post_id>",methods=['POST','GET'])
 @login_required
 def transfer(post_id):
@@ -267,10 +284,18 @@ def transfer(post_id):
     form = TransferForm()
     if form.validate_on_submit():
         if form.sourcetype.data=='1':
+            a=datetime.now()
+            ts=a.timestamp()
+            _date=str(date.fromtimestamp(ts))
+
+
             saccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='1').first()
             taccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='2').first()
             saccount.balance=saccount.balance-form.transferamt.data
             taccount.balance=taccount.balance+form.transferamt.data
+
+            accoperation=Accountoperation(message="transfer",last_updated=_date,aaccounttype=saccount.accounttype,ccid=saccount.acid,aaid=saccount.aid,amount=form.transferamt.data)
+            db.session.add(accoperation)
             db.session.commit()
             
             form.srcBalbf.data=saccount.balance+form.transferamt.data
@@ -279,10 +304,19 @@ def transfer(post_id):
             form.trgBalaf.data=0 if form.transferamt.data==None else (taccount.balance)
             print(account)
         elif form.sourcetype.data=='2':
+            a=datetime.now()
+            ts=a.timestamp()
+            _date=str(date.fromtimestamp(ts))
+
             saccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='2').first()
             taccount=Account.query.filter_by(acid=customer.cid).filter_by(accounttype='1').first()
             saccount.balance=saccount.balance-form.transferamt.data
             taccount.balance=taccount.balance+form.transferamt.data
+
+            accoperation=Accountoperation(message="transfer",last_updated=_date,aaccounttype=saccount.accounttype,ccid=saccount.acid,aaid=saccount.aid,amount=form.transferamt.data)
+            db.session.add(accoperation)
+            db.session.commit()
+
             db.session.commit()
             form.srcBalbf.data=saccount.balance+form.transferamt.data
             form.srcBalaf.data=0 if form.transferamt.data==None else (saccount.balance)
@@ -303,16 +337,20 @@ def transfer(post_id):
 @app.route("/statement/<int:post_id>",methods=['POST','GET'])
 @login_required
 def statement(post_id):
-    
+    account=Account.query.get_or_404(post_id)
+    acop=Accountoperation.query.filter_by(ccid=account.acid)
     form = AccountStatementForm()
     if form.validate_on_submit():
-        flash('Amount transfered!', 'success')
+        
+        flash('Amount Statements!', 'success')
         print('show table')
+        
 
-    form.aid.data=12345678
-     
+    form.aid.data=account.aid
+    
+      
     print(form.errors)
-    return render_template('account/accstatement.html',label='Withdraw Amount',legend='Account statement' ,title='Withdraw',form=form)
+    return render_template('account/accstatement.html',label='Withdraw Amount',accs=acop,legend='Account statement' ,title='Withdraw',form=form)
 
 @app.route("/status/<tags>",methods=['POST','GET'])
 @login_required

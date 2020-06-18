@@ -13,7 +13,7 @@
                 <th>Customer Id</th>
                 <th>Customer SSN Id</th>
                 <th>Status</th>
-                <th>Message</th>
+                <th>Type</th>
                 <th>Last updated</th>
                 <th>Operations</th>
                 <th>View Profile</th>
@@ -26,7 +26,7 @@
                         <td>{{item.status}}</td>
                         <td>GG</td>
                         <td>{{item.last_updated}}</td>
-                        <td><a href="#">refresh</a></td>
+                        <td><a href="/">refresh</a></td>
                         <td><a href="#">veiw profile</a></td>
                     </tr>
                 {%endfor%}
@@ -57,9 +57,14 @@
                         <td>{{item.custm.cid}}</td>
                         <td>{{item.custm.ssnid}}</td>
                         <td>{{item.status}}</td>
-                        <td>GG</td>
+                        <td>{%if item.accounttype=="1"%}
+                            Current
+                            {%else%}
+                            Savings
+                            {%endif%}
+                        </td>
                         <td>{{item.last_updated}}</td>
-                        <td><a href="#">refresh</a></td>
+                        <td><a href="">refresh</a></td>
                         <td><a href="#">veiw profile</a></td>
                     </tr>
                 {%endfor%}

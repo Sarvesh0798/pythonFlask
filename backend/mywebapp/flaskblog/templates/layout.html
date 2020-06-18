@@ -140,15 +140,18 @@
           $("#dates").replaceWith(divdateClone.clone()); 
           document.getElementById("lasttx").style.display = "block"; 
           document.getElementById("dates").style.display = "none"; 
+          document.getElementById("tables").style.display = "none";
           
         }else{
           $("#lasttx").replaceWith(divlastTxClone.clone()); 
 
           document.getElementById("dates").style.display = "block"; 
           document.getElementById("lasttx").style.display = "none"; 
+          document.getElementById("tables").style.display = "none";
         }
     });
     $('#showstm').click(function(){
+      var index=document.getElementById('lasttx').innerHTML; 
       document.getElementById("tables").style.display = "block"; 
     });
 })

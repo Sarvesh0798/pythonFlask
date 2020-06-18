@@ -90,28 +90,26 @@
     </form>
 
 </div>
-    
+   
 <div id="tables" style="padding-bottom: 10px; display: none;">
     <table>
         <tr>
-          <th>Customer Id</th>
-          <th>Customer SSN Id</th>
-          <th>Status</th>
-          <th>Message</th>
-          <th>Last updated</th>
-          <th>OPerations</th>
-          <th>View Profile</th>
+          <th>Transaction Id</th>
+          <th>Description</th>
+          <th>Date</th>
+          <th>Amount</th>
+          
         </tr>
-        {% for i in range(10)%}
+        
+        
+        {% for acc in accs[::-1]%}
 
             <tr>
-                <td>123456789</td>
-                <td>111222333</td>
-                <td>active</td>
-                <td>{{i}}</td>
-                <td>20-05-20</td>
-                <td><a href="#">refresh</a></td>
-                <td><a href="#">veiw profile</a></td>
+                <td>{{acc.aoid}}</td>
+                <td>{{acc.message}}</td>
+                <td>{{acc.last_updated}}</td>
+                <td>{{acc.amount}}</td>
+                
              </tr>
         {%endfor%}
         
