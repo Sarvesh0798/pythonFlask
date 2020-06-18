@@ -1,5 +1,5 @@
 from datetime import datetime
-from flaskblog import login_manager,db
+from flaskbank import login_manager,db
 from flask_login import UserMixin
 
 
@@ -14,10 +14,10 @@ class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     password = db.Column(db.String(80), nullable=False)
-    email=db.Column(db.String(80),nullable=False,unique=True)
+    #email=db.Column(db.String(80),nullable=False,unique=True)
     
     def __repr__(self):
-        return f"user('{self.username}','{self.password}','{self.email}')"
+        return f"user('{self.username}','{self.password}')"
 
 class Customer(db.Model):
     __tablename__ = 'customer'
@@ -31,7 +31,6 @@ class Customer(db.Model):
     state= db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(100),nullable= False)
     last_updated = db.Column(db.DateTime,nullable = False, default = datetime.utcnow)
-    customerstatus = db.relationship('Customerstatus', backref='customersts', lazy='dynamic',primaryjoin="and_(Customer.ssnid==Customerstatus.cssnid,Customer.cid==Customerstatus.ccid,Customer.status==Customerstatus.cstatus)")
     #operation = db.relationship('Accountoperation', backref='customerop', lazy='dynamic', primaryjoin="and_(Customer.cid==Accountoperation.ccid,Customer.status==Accountoperation.cstatus)")
     accountrelo=db.relationship('Account',backref='custm',lazy=True)
 
@@ -50,18 +49,6 @@ class Account(db.Model):
     customerrelo=db.relationship('Customer',backref='acc',lazy=True)
     def __repr__(self):
         return f"Account('{self.aid}','{self.accounttype}','{self.balance}')"
-
-class Customerstatus(db.Model):
-    __tablename__ = 'Customerstatus'
-    csid = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    message = db.Column(db.String(100),nullable=False)
-    last_updated=db.Column(db.DateTime,nullable=False,default=datetime.utcnow)
-    cssnid=db.Column(db.Integer,db.ForeignKey('customer.ssnid'),nullable=False)
-    ccid=db.Column(db.Integer,db.ForeignKey('customer.cid'),nullable=False)
-    cstatus=db.Column(db.Integer,db.ForeignKey('customer.status'),nullable=False)
-    
-    def __repr__(self):
-        return f"Customer Status('{self.csid}','{self.cstatus}','{self.message}','{self.last_updated}','{self.cssnid}','{self.ccid}')"
 
 class Accountoperation(db.Model):
     __tablename__ = 'accountoperation'

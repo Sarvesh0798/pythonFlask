@@ -5,19 +5,23 @@ from PIL import Image
 from datetime import datetime,date
 import pytz
 from flask import render_template, url_for, flash, redirect, request, abort
-from flaskblog import app, db, bcrypt
-from flaskblog.forms import  LoginForm,DepoWithdrawForm,AccountStatementForm,TransferForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
-from flaskblog.models import User, Customer, Accountoperation, Customerstatus,Account
+from flaskbank import app, db, bcrypt
+from flaskbank.forms import  LoginForm,DepoWithdrawForm,AccountStatementForm,TransferForm,SearchAccountrForm, CreateCustomerForm, UpdateCustomerForm, SearchCustomerForm, AccountForm
+from flaskbank.models import User, Customer, Accountoperation,Account
 from flask_login import login_user, current_user, logout_user, login_required
 
-
+'''db.drop_all()          #to rebuild entire db with new changes in DB
 db.create_all()
-user=User.query.filter_by(username='admin').first()
+user=User.query.filter_by(username='aExecutive').first()
+user=User.query.filter_by(username='Teller').first()
 if user==None:
-    hashed_password = bcrypt.generate_password_hash("ggbhai").decode('utf-8')
-    user = User(username="admin", email="aa@gmail.com", password=hashed_password)
+    hashed_password = bcrypt.generate_password_hash("executive").decode('utf-8')
+    user = User(username="aExecutive", password=hashed_password)
     db.session.add(user)
-    db.session.commit()
+    hashed_password = bcrypt.generate_password_hash("cashier").decode('utf-8')
+    user = User(username="Teller", password=hashed_password)
+    db.session.add(user)
+    db.session.commit()'''
 
 
 @app.route("/home")
@@ -39,13 +43,13 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
-            flash('Login Unsuccessful. Please check email and password', 'danger')
+            flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
@@ -54,7 +58,7 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-
+#customer section
 
 @app.route("/createcustomer", methods=['GET', 'POST'])
 @login_required
@@ -63,12 +67,14 @@ def createCustomer():
        
     form = CreateCustomerForm()
     if form.validate_on_submit():
+        tz = pytz.timezone("Asia/Kolkata")
+        dateTime = tz.localize(datetime.now(), is_dst=None)
         n = 9
         cid=''.join(["{}".format(randint(0, 9)) for num in range(0, n)])
         while Customer.query.filter_by(cid=cid).first():
             cid=''.join(["{}".format(randint(0, 9)) for num in range(0, n)])
 
-        customer=Customer(ssnid=form.ssnid.data,name=form.name.data,age=form.age.data,address=form.address.data,state=form.state.data,city=form.city.data,cid=cid,status='Active') 
+        customer=Customer(last_updated=dateTime,ssnid=form.ssnid.data,name=form.name.data,age=form.age.data,address=form.address.data,state=form.state.data,city=form.city.data,cid=cid,status='Active') 
         db.session.add(customer)
         db.session.commit()
         print("added")
@@ -87,10 +93,16 @@ def createCustomer():
 def search_customer(tag):
     form=SearchCustomerForm()
     if form.validate_on_submit():
-        if form.cSsnid.data =='':
+        if form.cSsnid.data ==None:
             customer=Customer.query.filter_by(cid=form.cCid.data).first()
+            if customer==None:
+                flash('Doesnt exist','danger')
+                return redirect(url_for('home'))
         else:
             customer=Customer.query.filter_by(ssnid=form.cSsnid.data).first()
+            if customer==None:
+                flash('Doesnt exist','danger')
+                return redirect(url_for('home'))
         flash('Customer found!', 'success')
         if tag =='update':
             return redirect(url_for('update_customer',post_id=customer.id))
@@ -107,8 +119,8 @@ def update_customer(post_id):
     tz = pytz.timezone("Asia/Kolkata")
     form = UpdateCustomerForm()
     if form.validate_on_submit():
-        dateTime = tz.localize(datetime.date(), is_dst=None)
-        print(aware)
+        dateTime = tz.localize(datetime.now(), is_dst=None)
+        
         customer.name=form.newname.data
         customer.age=form.newage.data
         customer.address=form.newaddress.data
@@ -148,8 +160,23 @@ def removeCustomer(post_id):
     flash('Your customer has been deleted!', 'success')
     return redirect(url_for('home'))
 
-#---------------------------------------------------------------------------------------------------#
+@app.route("/profile_customer/<int:post_id>", methods=['GET', 'POST'])
+@login_required
+def profile_customer(post_id):
+    customer = Customer.query.filter_by(cid=post_id).first_or_404()
+    form=CreateCustomerForm()
+    form.name.data = customer.name
+    form.age.data = customer.age
+    form.cid.data = customer.cid
+    form.ssnid.data = customer.ssnid
+    form.state.data = customer.state
+    form.city.data = customer.city
+    form.address.data = customer.address
+    return render_template('customer/profile_customer.html',post_id=post_id, legend='Customer Information',title='Profile',form=form)
 
+
+#---------------------------------------------------------------------------------------------------#
+#account section
 
 @app.route("/createaccount", methods=['GET', 'POST'])
 @login_required
@@ -158,10 +185,25 @@ def create_account():
     
     form = AccountForm()
     if form.validate_on_submit():
-        acc=Account(accounttype=form.acctype.data,balance=form.deposit.data,acid=form.cid.data,status='Active')
-        db.session.add(acc)
-        db.session.commit()
-        flash("Account Created",'success')
+        caccount=Account.query.filter_by(acid=form.cid.data).filter_by(accounttype='1').first()
+        saccount=Account.query.filter_by(acid=form.cid.data).filter_by(accounttype='2').first()
+        if caccount==None:
+            tz = pytz.timezone("Asia/Kolkata")
+            dateTime = tz.localize(datetime.now(), is_dst=None)
+            acc=Account(last_updated=dateTime,accounttype=form.acctype.data,balance=form.deposit.data,acid=form.cid.data,status='Active')
+            db.session.add(acc)
+            db.session.commit()
+            flash("Account Created",'success')
+        elif saccount==None:
+            tz = pytz.timezone("Asia/Kolkata")
+            dateTime = tz.localize(datetime.now(), is_dst=None)
+            acc=Account(last_updated=dateTime,accounttype=form.acctype.data,balance=form.deposit.data,acid=form.cid.data,status='Active')
+            db.session.add(acc)
+            db.session.commit()
+            flash("Account Created",'success')
+        else:
+
+            flash("Account Exist",'danger')
         
     print(form.errors)
     return render_template('account/create_account.html',legend='Create Account', title='Create Account', form=form)
@@ -177,8 +219,14 @@ def search_account(tag):
         
         if form.cid.data==None:
             account=Account.query.filter_by(aid=form.aid.data).first()
+            if account==None:
+                flash('Doesnt exist','danger')
+                return redirect(url_for('home'))
         else:
             account=Account.query.filter_by(acid=form.cid.data).first()
+            if account==None:
+                flash('Doesnt exist','danger')
+                return redirect(url_for('home'))
         flash('Account found!', 'success')
         if tag =='delete':
             return redirect(url_for('delete_account',post_id=account.aid))
@@ -220,8 +268,20 @@ def removeAccount(post_id):
     flash('Your Account has been deleted!', 'success')
     return redirect(url_for('home'))
 
+@app.route("/profile_account/<int:post_id>", methods=['GET', 'POST'])
+@login_required
+def profile_account(post_id):
+    account = Account.query.filter_by(aid=post_id).first_or_404()
+    form=AccountForm()
+    form.aid.data=account.aid
+    form.acctype.data=account.accounttype
+    form.cid.data=account.acid
+    form.deposit.data=account.balance
+    return render_template('account/profile_account.html',post_id=post_id, legend='Account Information',title='Profile',form=form)
+
+
 #----------------------------------------------------------------------------------------------#
-   
+#operations   
 @app.route("/searchaccount/<int:post_id>/deposit",methods=['POST','GET'])
 @login_required
 def deposit(post_id):
@@ -347,7 +407,10 @@ def statement(post_id):
         
 
     form.aid.data=account.aid
-    
+    if account.accounttype=='1':
+        form.atype.data='Current'
+    elif account.accounttype=='2':
+        form.atype.data='Savings'    
       
     print(form.errors)
     return render_template('account/accstatement.html',label='Withdraw Amount',accs=acop,legend='Account statement' ,title='Withdraw',form=form)

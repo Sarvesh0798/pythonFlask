@@ -13,7 +13,7 @@
                 <th>Customer Id</th>
                 <th>Customer SSN Id</th>
                 <th>Status</th>
-                <th>Type</th>
+                <th>Message</th>
                 <th>Last updated</th>
                 <th>Operations</th>
                 <th>View Profile</th>
@@ -27,7 +27,7 @@
                         <td>GG</td>
                         <td>{{item.last_updated}}</td>
                         <td><a href="/">refresh</a></td>
-                        <td><a href="#">veiw profile</a></td>
+                        <td><a href="{{ url_for('profile_customer',post_id=item.cid) }}">veiw profile</a></td>
                     </tr>
                 {%endfor%}
                 
@@ -46,7 +46,7 @@
                 <th>Customer Id</th>
                 <th>Customer SSN Id</th>
                 <th>Status</th>
-                <th>Message</th>
+                <th>Type</th>
                 <th>Last updated</th>
                 <th>Operations</th>
                 <th>View Profile</th>
@@ -65,7 +65,7 @@
                         </td>
                         <td>{{item.last_updated}}</td>
                         <td><a href="">refresh</a></td>
-                        <td><a href="#">veiw profile</a></td>
+                        <td><a href="{{ url_for('profile_account',post_id=item.aid) }}">veiw profile</a></td>
                     </tr>
                 {%endfor%}
                 

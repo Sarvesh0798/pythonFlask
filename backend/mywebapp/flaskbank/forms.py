@@ -4,33 +4,17 @@ from flask_login import current_user
 from wtforms import StringField, PasswordField,SubmitField, BooleanField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange,Optional
 from wtforms.fields.html5 import DateField 
-from flaskblog.models import User, Customer, Account
+from flaskbank.models import User, Customer, Account
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email',
-                        validators=[DataRequired(), Email()])
+    #email = StringField('Email',validators=[DataRequired(), Email()])
+    username=StringField('Username',validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
-
-class AccountForm(FlaskForm):
-    cid = IntegerField('Customer Id', validators=[DataRequired()])
-    aid = IntegerField('Account Id')
-    acctype =SelectField('Account Type',choices=[('1','current'),('2','savings')], validators=[DataRequired()])
-    deposit = IntegerField('Deosit Amount', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-    search = SubmitField('Search')
-
-    
-    def validate_cid(self,cid):
-        customer = Customer.query.filter_by(cid=cid.data).first()
-        if not customer:
-            raise ValidationError('customer does not exist.')
-    def validate_deposit(self,deposit):
-        if not deposit.data>0:
-            raise ValidationError('Enter amount greater than 0')
+#operation section
 
 class DepoWithdrawForm(FlaskForm):
     cid = IntegerField('Customer Id', validators=[DataRequired()])
@@ -61,6 +45,26 @@ class TransferForm(FlaskForm):
         
         if not transferamt.data>0:
             raise ValidationError('customer does not exist.')
+#--------------------------------------------------------------------------------------------------------
+#acount section
+
+class AccountForm(FlaskForm):
+    cid = IntegerField('Customer Id', validators=[DataRequired()])
+    aid = IntegerField('Account Id')
+    acctype =SelectField('Account Type',choices=[('1','current'),('2','savings')], validators=[DataRequired()])
+    deposit = IntegerField('Deosit Amount', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    search = SubmitField('Search')
+
+    
+    def validate_cid(self,cid):
+        customer = Customer.query.filter_by(cid=cid.data).first()
+        if not customer:
+            raise ValidationError('customer does not exist.')
+    def validate_deposit(self,deposit):
+        if not deposit.data>0:
+            raise ValidationError('Enter amount greater than 0')
+
 
 class SearchAccountrForm(FlaskForm):
     cid = IntegerField('Customer Id', validators=[Optional()])
@@ -72,8 +76,16 @@ class SearchAccountrForm(FlaskForm):
         if not account:
             raise ValidationError('customer does not exist.')
 
+class AccountStatementForm(FlaskForm):
+    aid = IntegerField('Account ID', )
+    atype= StringField('Account Type')
+    lasttr =SelectField('Last N transcations',choices=[('1','1'),('2','2'),('3','3'),('4','4'),('5','5')], validators=[DataRequired()])
+    startdate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
+    enddate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
+    submit=SubmitField('submit')
 
-
+#-----------------------------------------------------------------------------------------------------------
+#customer section
 class SearchCustomerForm(FlaskForm):
     cSsnid = IntegerField('Customer ssnId', validators=[Optional()])
     cCid = IntegerField('Customer Id', validators=[Optional()])
@@ -147,9 +159,3 @@ class UpdateCustomerForm(FlaskForm):
         if customer:
             raise ValidationError('That age is taken. Please choose a different one.')
     
-class AccountStatementForm(FlaskForm):
-    aid = IntegerField('Account ID', )
-    lasttr =SelectField('Last N transcations',choices=[('1','1'),('2','2'),('3','3'),('4','4'),('5','5')], validators=[DataRequired()])
-    startdate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
-    enddate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
-    submit=SubmitField('submit')

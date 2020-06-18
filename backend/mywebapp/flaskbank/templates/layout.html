@@ -11,9 +11,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
     {% if title %}
-        <title>Flask Blog - {{ title }}</title>
+        <title>Banking - {{ title }}</title>
     {% else %}
-        <title>Flask Blog</title>
+        <title>Banking</title>
     {% endif %}
 </head>
 <body style='padding-top:10px'>
@@ -32,52 +32,70 @@
              
               <div class="navbar-nav mr-auto ">
                 {% if current_user.is_authenticated %}
-                  <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
-                  
-                  <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Customer Management
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <a class="dropdown-item" href="{{ url_for('createCustomer') }}">Create new Customer</a>
-                      <a class="dropdown-item" href="{{ url_for('search_customer',tag='update') }}">Update customer</a>
-                      <a class="dropdown-item" href="{{ url_for('search_customer',tag='delete') }}">Delete customer</a>
-                    </div>
-                  </li>
-  
-                  <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Account Management
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <a class="dropdown-item" href="{{ url_for('create_account') }}">Create Account</a>
-                      <a class="dropdown-item" href="{{ url_for('search_account',tag='delete') }}">Delete Account</a>
+                  {% if current_user.username=='Executive' %}
+                    <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
+                    
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Customer Management
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('createCustomer') }}">Create new Customer</a>
+                        <a class="dropdown-item" href="{{ url_for('search_customer',tag='update') }}">Update customer</a>
+                        <a class="dropdown-item" href="{{ url_for('search_customer',tag='delete') }}">Delete customer</a>
+                      </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Account Management
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('create_account') }}">Create Account</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='delete') }}">Delete Account</a>
+                        
+                      </div>
+                    </li>
+    
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Status Details
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('status',tags='cust') }}">Customer Status</a>
+                        <a class="dropdown-item" href="{{ url_for('status',tags='acc') }}">Account Staus</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='statement') }}">Account Statement</a>
+                       
+                      </div>
+                    </li>
+                  {%elif current_user.username=='Teller'%}
+                    <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
+                    
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Status Details
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('status',tags='cust') }}">Customer Status</a>
+                        <a class="dropdown-item" href="{{ url_for('status',tags='acc') }}">Account Staus</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='statement') }}">Account Statement</a>
                       
-                    </div>
-                  </li>
+                      </div>
+                    </li>
+    
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Account Operations
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='deposit') }}">Deposit</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='withdraw') }}">Withdraw</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='transfer') }}">Transfer</a>
+                      </div>
+                    </li>
+                  {%endif%}
+                  
   
-                  <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Status Details
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <a class="dropdown-item" href="{{ url_for('status',tags='cust') }}">Customer Status</a>
-                      <a class="dropdown-item" href="{{ url_for('status',tags='acc') }}">Account Staus</a>
-                      <a class="dropdown-item" href="{{ url_for('search_account',tag='statement') }}">Account Statement</a>
-                     
-                    </div>
-                  </li>
-  
-                  <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Account Operations
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <a class="dropdown-item" href="{{ url_for('search_account',tag='deposit') }}">Deposit</a>
-                      <a class="dropdown-item" href="{{ url_for('search_account',tag='withdraw') }}">Withdraw</a>
-                      <a class="dropdown-item" href="{{ url_for('search_account',tag='transfer') }}">Transfer</a>
-                    </div>
-                  </li>
+                  
                   <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
                   
                 {% else %}
@@ -92,7 +110,7 @@
       </header>
   </div>
   
-    
+  <!--main content of site-->  
       <main  role="main" class="container">
         <div class="row justify-content-md-center">
           <div class="col-md-8">
@@ -112,7 +130,7 @@
       </main>
    
     
-  
+  <!--footer of site-->
       <footer class="page-footer">
         <div class="row justify-content-md-center">
         <div class="col-sm-6 ">
@@ -137,12 +155,14 @@
         var divlastTxClone = $("#lasttx").clone();
     $('.radio').change(function(){
         if($('#option1').prop('checked')){
+          //shows last transaction option
           $("#dates").replaceWith(divdateClone.clone()); 
           document.getElementById("lasttx").style.display = "block"; 
           document.getElementById("dates").style.display = "none"; 
           document.getElementById("tables").style.display = "none";
           
         }else{
+          //show select dates options
           $("#lasttx").replaceWith(divlastTxClone.clone()); 
 
           document.getElementById("dates").style.display = "block"; 
@@ -151,6 +171,7 @@
         }
     });
     $('#showstm').click(function(){
+      //shows statements of customer account
       var index=document.getElementById('lasttx').innerHTML; 
       document.getElementById("tables").style.display = "block"; 
     });
