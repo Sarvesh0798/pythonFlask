@@ -1,0 +1,118 @@
+{%extends 'layout.html'%}
+{%block content%}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Update Customer Screen</legend>
+            <div class="form-group">
+                {{ form.ssnid.label(class="form-control-label")}}
+                
+                {{ form.ssnid(class="form-control form-control-lg", readonly=true) }}
+                
+            </div>
+
+            <div class="form-group">
+                {{ form.pid.label(class="form-control-label")}}
+                
+                {{ form.pid(class="form-control form-control-lg", readonly=true) }}
+                
+            </div>
+
+            
+            <div class="form-group">
+                {{ form.newname.label(class="form-control-label")+"*"  }}
+                {% if form.newname.errors %}
+                    {{ form.newname(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.newname.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.newname(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+          
+            <div class="form-group">
+                {{ form.newage.label(class="form-control-label")+"*"  }}
+                {% if form.newage.errors %}
+                    {{ form.newage(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.newage.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.newage(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.bed.label(class="form-control-label")+"*"  }}
+                {% if form.bed.errors %}
+                    {{ form.bed }}
+                    <div class="invalid-feedback">
+                        {% for error in form.bed.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.bed }}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.newaddress.label(class="form-control-label")+"*"  }}
+                {% if form.newaddress.errors %}
+                    {{ form.newaddress(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.newaddress.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.newaddress(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+           
+            <div class="form-group">
+                {{ form.state.label(class="form-control-label")+"*"  }}
+                {% if form.state.errors %}
+                    {{ form.state }}
+                    <div class="invalid-feedback">
+                        {% for error in form.state.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.state }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.city.label(class="form-control-label")+"*"  }}
+                {% if form.city.errors %}
+                    {{ form.city }}
+                    <div class="invalid-feedback">
+                        {% for error in form.city.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.city }}
+                {% endif %}
+            </div>
+            
+        </fieldset>
+        <div><p style="color: red;">* all fields are requried</p></div>
+        <div class="row justify-content-center">
+            <div style="padding: 10px;" class="form-group">
+                {{ form.update(class="btn btn-outline-info") }}
+            </div>
+            
+        </div>
+       
+        
+    </form>
+</div>
+{%endblock content%}
