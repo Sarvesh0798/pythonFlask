@@ -36,7 +36,7 @@ class Patient(db.Model):
     diagrelo=db.relationship('Diagonastic',backref='med',lazy=True)
 
     def __repr__(self):
-        return f"Patient('{self.ssnid}','{self.name}','{self.age}','{self.address}','{self.city}','{self.state}','{self.bed}','{self.doj}','{self.dodc}')"
+        return f"Patient('{self.id}','{self.ssnid}','{self.name}','{self.age}','{self.address}','{self.city}','{self.state}','{self.bed}','{self.doj}','{self.dodc}')"
 
 class Medicine(db.Model):
     __tablename__ = 'Medicine'

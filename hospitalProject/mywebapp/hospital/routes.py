@@ -6,7 +6,7 @@ from datetime import datetime,date
 import pytz
 from flask import render_template, url_for, flash, redirect, request, abort
 from hospital import app, db, bcrypt
-from hospital.forms import  LoginForm, CreatePatientForm, UpdatePatientForm,ProfilePatientForm ,SearchPatientForm, MedicineForm
+from hospital.forms import  LoginForm, CreatePatientForm, UpdatePatientForm,ProfilePatientForm ,SearchPatientForm, MedicineForm, DiagonasticForm
 from hospital.models import User, Patient, Medicine,Diagonastic,MedicineMaster,DiagonasticMaster
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -59,8 +59,14 @@ def createPatient():
   
         ts=dateTime.timestamp()
         _date=str(date.fromtimestamp(ts))
+
+        n = 9
+        pid=''.join(["{}".format(randint(0, 9)) for num in range(0, n)])
+        while Patient.query.filter_by(id=pid).first():
+            pid=''.join(["{}".format(randint(0, 9)) for num in range(0, n)])
+
         
-        patient=Patient(doj=_date,ssnid=form.ssnid.data,name=form.name.data,age=form.age.data,bed=form.bed.data,address=form.address.data,state=form.state.data,city=form.city.data,status='Active') 
+        patient=Patient(doj=_date,id=pid,ssnid=form.ssnid.data,name=form.name.data,age=form.age.data,bed=form.bed.data,address=form.address.data,state=form.state.data,city=form.city.data,status='Active') 
         db.session.add(patient)
         db.session.commit()
         print("added")
@@ -96,6 +102,8 @@ def search_patient(tag):
             return redirect(url_for('status',tags='bill',post_id=patient.id))
         elif tag=='med':
             return redirect(url_for('status',tags='med',post_id=patient.id))
+        elif tag=='diag':
+            return redirect(url_for('status',tags='diag',post_id=patient.id))
         else:
              return redirect(url_for('delete_patient',post_id=patient.id))   
         
@@ -184,15 +192,44 @@ def status(tags,post_id):
         data=Patient.query.all()
         return render_template('patient/all_patient.html',tag=tags,items=data,legend='All Patient' ,title='Patients')
     elif tags=='bill':
+        dTotal=0
+        mTotal=0
+        gTotal=0
+        bTotal=0
         data=Patient.query.filter_by(id=post_id).first()
         medData=Medicine.query.filter_by(pid=data.id).all()
         diagData=Diagonastic.query.filter_by(pid=data.id).all()
-        return render_template('patient/bill_patient.html',tag=tags,pat=data,medItems=medData,diagItems=diagData,legend='All Patient' ,title='Patients')    
+
+        doj=datetime.strptime(data.doj,'%Y-%m-%d').date()
+        tz = pytz.timezone("Asia/Kolkata")
+        dateTime = tz.localize(datetime.now(), is_dst=None)
+        ts=dateTime.timestamp()
+        _date=(date.fromtimestamp(ts))
+        diff=_date-doj
+        days=diff.days
+        if data.bed=='general':
+            bTotal=days * 2000
+        elif data.bed=='semi':
+            bTotal=days * 4000
+        elif data.bed=='single':
+            bTotal=days * 8000
+        for diag in diagData:
+            dTotal=dTotal+diag.amt
+        for med in medData:
+            mTotal=mTotal+med.amount
+
+        gTotal=bTotal+mTotal+dTotal    
+        return render_template('patient/bill_patient.html',tag=tags,pat=data,medItems=medData,diagItems=diagData,days=days,dtotal=dTotal,mtotal=mTotal,btotal=bTotal,gtotal=gTotal ,title='Patients')    
     elif tags=='med':
         data=Patient.query.filter_by(id=post_id).first()
         medData=Medicine.query.filter_by(pid=data.id).all()
-        
         return render_template('medTest/medicine_patient.html',pat=data,medItems=medData,legend='All Patient' ,title='Patients')    
+
+    elif tags=='diag':
+        data=Patient.query.filter_by(id=post_id).first()
+        diagData=Diagonastic.query.filter_by(pid=data.id).all()
+        
+        return render_template('medTest/diagonastic_patient.html',pat=data,diagItems=diagData,legend='All Patient' ,title='Patients')    
     
     
 
@@ -205,8 +242,12 @@ def newMedicine(post_id):
     if form.validate_on_submit():
         
         return redirect(url_for('searchMedicine',medname=form.searchMed.data,post_id=data.id))
-    print(form.errors)
-    return render_template('medTest/new_medicine.html',qty='disable',pat=data,medMast=medMaster,legend='All Patient' ,title='Patients',form=form)    
+    if data.status=='discharged':
+        flash('patient already discharged','danger')
+        return redirect(url_for('home'))
+    else:   
+        print(form.errors)
+        return render_template('medTest/new_medicine.html',qty='disable',pat=data,medMast=medMaster,legend='All Patient' ,title='Patients',form=form)    
 
 @app.route("/searchmedicine/<medname>/<int:post_id>",methods=['POST','GET'])
 @login_required
@@ -215,15 +256,78 @@ def searchMedicine(medname,post_id):
     data=Patient.query.filter_by(id=post_id).first()
     medMaster=MedicineMaster.query.filter_by(mName=medname).all()
     _medMaster=MedicineMaster.query.filter_by(mName=medname).first()
+    if _medMaster == None:
+        flash('medicine not found','danger')
+        return redirect(url_for('newMedicine',post_id=data.id))
     if form.validate_on_submit():
-        _medMaster.qty=_medMaster.qty - form.quantity.data
-        med= Medicine(mName=_medMaster.mName,qty=form.quantity.data,rate=_medMaster.rate,amount=(_medMaster.rate * form.quantity.data),pid=data.id)
-        db.session.add(med)
-        db.session.commit()
-        return redirect(url_for('status',tags='med',post_id=data.id))
+        if form.addMed.data:
+
+            if (form.quantity.data > 0) and (form.quantity.data < _medMaster.qty):
+
+                _medMaster.qty=_medMaster.qty - form.quantity.data
+                med= Medicine(mName=_medMaster.mName,qty=form.quantity.data,rate=_medMaster.rate,amount=(_medMaster.rate * form.quantity.data),pid=data.id)
+                db.session.add(med)
+                db.session.commit()
+                return redirect(url_for('status',tags='med',post_id=data.id))
+            else:
+                flash('Improper Quantity','danger')
+                return redirect(url_for('searchMedicine',medname=medname,post_id=data.id))
     print(form.errors)
     return render_template('medTest/new_medicine.html',pat=data,qty='enable',medMast=medMaster,legend='All Patient' ,title='Patients',form=form)    
 
+
+
+
+@app.route("/newdiagonastic/<int:post_id>",methods=['POST','GET'])
+@login_required
+def newTest(post_id):
+    form=DiagonasticForm()
+    data=Patient.query.filter_by(id=post_id).first()
+    diagMaster=DiagonasticMaster.query.all()
+    if form.validate_on_submit():
+        
+        return redirect(url_for('searchTest',medname=form.searchDiag.data,post_id=data.id))
+    
+    if data.status=='discharged':
+        flash('patient already discharged','danger')
+        return redirect(url_for('home'))
+    else: 
+        print(form.errors)
+        return render_template('medTest/new_test.html',qty='disable',pat=data,diagMast=diagMaster,legend='All Patient' ,title='Patients',form=form)    
+
+@app.route("/searchdiagonastic/<medname>/<int:post_id>",methods=['POST','GET'])
+@login_required
+def searchTest(medname,post_id):
+    form=DiagonasticForm()
+    data=Patient.query.filter_by(id=post_id).first()
+    diagMaster=DiagonasticMaster.query.filter_by(dName=medname).all()
+    _diagMaster=DiagonasticMaster.query.filter_by(dName=medname).first()
+
+    if _diagMaster == None:
+        flash('test not found','danger')
+        return redirect(url_for('newTest',post_id=data.id))
+    if form.validate_on_submit():
+        if form.addDiag.data:
+            
+            diag= Diagonastic(dName=_diagMaster.dName,amt=_diagMaster.amt,pid=data.id)
+            db.session.add(diag)
+            db.session.commit()
+            return redirect(url_for('status',tags='diag',post_id=data.id))
+    print(form.errors)
+    return render_template('medTest/new_test.html',pat=data,qty='enable',diagMast=diagMaster,legend='All Patient' ,title='Patients',form=form)    
+
+@app.route("/patient/<int:post_id>/discharge", methods=['GET', 'POST'])
+def confirmbill(post_id):
+    data=Patient.query.filter_by(id=post_id).first()
+    tz = pytz.timezone("Asia/Kolkata")
+    dateTime = tz.localize(datetime.now(), is_dst=None)
+    ts=dateTime.timestamp()
+    _date=str(date.fromtimestamp(ts))
+    data.dodc=_date
+    data.status='discharged'
+    db.session.commit()
+    flash('Patient Discharged','success')
+    return redirect(url_for('home'))
 #---------------------------------------------------------------------------------------------------#
 
 

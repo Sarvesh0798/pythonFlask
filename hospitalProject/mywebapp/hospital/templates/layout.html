@@ -67,7 +67,7 @@
                       </a>
                       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{{ url_for('search_patient',tag='med') }}">View Patient</a>
-                        <a class="dropdown-item" href="{{ url_for('status',tags='acc',post_id='0') }}">Add new medicine</a>
+                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='med') }}">Add new medicine</a>
                         
                       </div>
                     </li>
@@ -81,8 +81,8 @@
                         Manage Diagonastic services
                       </a>
                       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ url_for('status',tags='cust',post_id='0') }}">View Patient</a>
-                        <a class="dropdown-item" href="{{ url_for('status',tags='acc',post_id='0') }}">Add new diagonastic(test)</a>
+                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='diag') }}">View Patient</a>
+                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='diag') }}">Add new diagonastic(test)</a>
                         
                       </div>
                     </li>
@@ -125,7 +125,7 @@
    
     
   <!--footer of site-->
-      <footer class="page-footer">
+      <footer class="page-footer ">
         <div class="row justify-content-md-center">
         <div class="col-sm-6 ">
           <nav class="navbar  navbar-light mr-auto ">

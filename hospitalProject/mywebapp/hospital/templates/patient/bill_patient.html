@@ -35,8 +35,8 @@
             </div>
     
             <div style="margin-bottom: 15px;" class="row justtify-content-center">
-                <h5>No. of days</h5><p style="margin-left: 15px;">7</p>
-                <h5 style="margin-left: 15px;">Bill for room</h5><p style="margin-left: 15px;">Rs. 5600</p>
+                <h5>No. of days</h5><p style="margin-left: 15px;">{{days}}</p>
+                <h5 style="margin-left: 15px;">Bill for room</h5><p style="margin-left: 15px;">Rs. {{btotal}}</p>
                 
             </div>
     
@@ -52,14 +52,14 @@
                     <th>Amount</th>
                     </tr>
                     {% for med in medItems%}
-                        {%if med.diag.pid== pat.id%}
+                        
                             <tr>
-                                <td>{{med.diag.mName}}</td>
-                                <td>{{med.diag.qty}}</td>
-                                <td>{{med.diag.rate}}</td>
-                                <td>{{med.diag.amount}}</td>
+                                <td>{{med.mName}}</td>
+                                <td>{{med.qty}}</td>
+                                <td>{{med.rate}}</td>
+                                <td>{{med.amount}}</td>
                             </tr>
-                        {%endif%}
+                       
                         
                     {%endfor%}
                     
@@ -71,7 +71,7 @@
             <div style="margin-bottom: 15px;" class="row justtify-content-end">
                
                 <h5>Bill for Pharmacy</h5>
-                <p style="margin-left: 15px;margin-bottom: 5px;">Rs. 5600</p>
+                <p style="margin-left: 15px;margin-bottom: 5px;">Rs. {{mtotal}}</p>
                 
             </div>
     
@@ -85,13 +85,13 @@
                     <th>Amount</th>
                     </tr>
                     {% for diag in diagItems%}
-                        {%if diag.med.pid== pat.id%}
+                        
                             <tr>
-                                <td>{{diag.med.dName}}</td>
-                                <td>{{diag.med.amt}}</td>
+                                <td>{{diag.dName}}</td>
+                                <td>{{diag.amt}}</td>
                                
                             </tr>
-                        {%endif%}
+                        
                         
                     {%endfor%}
                     
@@ -102,15 +102,15 @@
         
           <div style="margin-bottom: 15px;" class="row justtify-content-end">
                
-                <h5>Bill for Diagonastics</h5><p style="margin-left: 15px;">Rs. 5600</p>
+                <h5>Bill for Diagonastics</h5><p style="margin-left: 15px;">Rs. {{dtotal}}</p>
                 
             </div>
             
             <div class="row justtify-content-end">
                
-                <button class="round" style="margin-left: 15px;margin-right: 15px;margin-bottom: 5px;" class="btn-info">Confirm</button>
+               <a href="{{ url_for('confirmbill',post_id=pat.id) }}"> <button class="btn" style="margin-left: 15px;margin-right: 15px;margin-bottom: 5px;" class="btn-info">Confirm</button></a>
                 <h5 style="margin-left: 15px;margin-right: 15px;margin-bottom: 5px;">Grand Total</h5>
-                <p style="margin-left: 15px;margin-right: 15px;margin-bottom: 5px;">Rs. 71000</p>
+                <p style="margin-left: 15px;margin-right: 15px;margin-bottom: 5px;">Rs. {{gtotal}}</p>
                 
             </div>
         </div>

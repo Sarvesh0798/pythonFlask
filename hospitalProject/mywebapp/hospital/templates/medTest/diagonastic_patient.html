@@ -1,0 +1,71 @@
+{%extends 'layout.html'%}
+{%block content%}
+ 
+        <div style="display: inline-block;">
+            <div><h3>
+                Diagonastics
+            </h3></div>
+            <div id="patienttables" style="padding-bottom: 10px; display: block;">
+                <table>
+                    <tr>
+                    <th>Patient Id</th>
+                    <th>Patient SSN Id</th>
+                    <th>Status</th>
+                    <th>Bed Type</th>
+                    <th>Date of admission</th>
+                    
+                    </tr>
+                    
+    
+                        <tr>
+                            <td>{{pat.id}}</td>
+                            <td>{{pat.ssnid}}</td>
+                            <td>{{pat.status}}</td>
+                            <td>{{pat.bed}}</td>
+                            <td>{{pat.doj}}</td>
+                        </tr>
+                    
+                    
+                    
+                </table>
+                
+            </div>
+    
+        
+            <div><h3>
+                Test Conducted
+            </h3></div>
+            <div id="patienttables" style="padding-bottom: 10px; display: block;">
+                <table>
+                    <tr>
+                    <th>Test Name</th>
+                
+                    <th>Rate</th>
+                    
+                    </tr>
+                    {% for diag in diagItems%}
+                        {%if diag.pid== pat.id%}
+                            <tr>
+                                <td>{{diag.dName}}</td>
+                                
+                                <td>{{diag.amt}}</td>
+                                
+                            </tr>
+                        {%endif%}
+                        
+                    {%endfor%}
+                    
+                    
+                </table>
+                
+            </div>
+    
+            
+            <div class="row justtify-content-end">
+               
+               <a href="{{ url_for('newTest',post_id=pat.id) }}"> <button type="button" class="round"  style="margin-left: 15px;margin-right: 15px;margin-bottom: 5px;" class="btn-info">Conduct new Test</button></a>
+                
+            </div>
+        </div>
+
+{%endblock content%}

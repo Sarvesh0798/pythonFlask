@@ -19,7 +19,7 @@
                 <th>View Profile</th>
                 </tr>
                 {% for item in items%}
-
+                    {%if not item.status=='discharged'%}
                     <tr>
                         <td>{{item.id}}</td>
                         <td>{{item.ssnid}}</td>
@@ -29,6 +29,7 @@
                         <td><a href="/">refresh</a></td>
                         <td><a href="{{ url_for('profile_patient',post_id=item.id) }}">veiw profile</a></td>
                     </tr>
+                    {%endif%}
                 {%endfor%}
                 
                 

@@ -91,4 +91,9 @@ class MedicineForm(FlaskForm):
     quantity = IntegerField('Quantity',validators=[Optional(), NumberRange(min=1, max=200)] )
     searchbtn = SubmitField('Search')
     addMed = SubmitField('Add medicine')
+
+class DiagonasticForm(FlaskForm):
+    searchDiag = StringField('Search Test',validators=[Optional()])
+    searchbtn = SubmitField('Search')
+    addDiag = SubmitField('Add Test')
     

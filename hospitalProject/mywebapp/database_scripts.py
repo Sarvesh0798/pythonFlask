@@ -26,7 +26,7 @@ if choice=='y':
         db.session.add(med)  
     db.session.commit()
     for i in range(10):
-        diag=DiagonasticMaster(dName=str(i)+"abc",amt=200)
+        diag=DiagonasticMaster(dName=str(i)+"abc",amt=2000)
         db.session.add(diag)  
     db.session.commit()
 
