@@ -6,8 +6,8 @@ from datetime import datetime,date
 import pytz
 from flask import render_template, url_for, flash, redirect, request, abort
 from hospital import app, db, bcrypt
-from hospital.forms import  LoginForm,DepoWithdrawForm,AccountStatementForm,TransferForm,SearchAccountrForm, CreatePatientForm, UpdatePatientForm,ProfilePatientForm ,SearchPatientForm, AccountForm
-from hospital.models import User, Patient, Medicine,Diagonastic
+from hospital.forms import  LoginForm, CreatePatientForm, UpdatePatientForm,ProfilePatientForm ,SearchPatientForm, MedicineForm
+from hospital.models import User, Patient, Medicine,Diagonastic,MedicineMaster,DiagonasticMaster
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -56,8 +56,11 @@ def createPatient():
     if form.validate_on_submit():
         tz = pytz.timezone("Asia/Kolkata")
         dateTime = tz.localize(datetime.now(), is_dst=None)
+  
+        ts=dateTime.timestamp()
+        _date=str(date.fromtimestamp(ts))
         
-        patient=Patient(doj=dateTime,ssnid=form.ssnid.data,name=form.name.data,age=form.age.data,bed=form.bed.data,address=form.address.data,state=form.state.data,city=form.city.data,status='Active') 
+        patient=Patient(doj=_date,ssnid=form.ssnid.data,name=form.name.data,age=form.age.data,bed=form.bed.data,address=form.address.data,state=form.state.data,city=form.city.data,status='Active') 
         db.session.add(patient)
         db.session.commit()
         print("added")
@@ -90,7 +93,9 @@ def search_patient(tag):
         elif tag=='profile':
             return redirect(url_for('profile_patient',post_id=patient.id))
         elif tag=='bill':
-            return redirect(url_for('update_patient',post_id=patient.id))
+            return redirect(url_for('status',tags='bill',post_id=patient.id))
+        elif tag=='med':
+            return redirect(url_for('status',tags='med',post_id=patient.id))
         else:
              return redirect(url_for('delete_patient',post_id=patient.id))   
         
@@ -104,14 +109,16 @@ def update_patient(post_id):
     form = UpdatePatientForm()
     if form.validate_on_submit():
         dateTime = tz.localize(datetime.now(), is_dst=None)
-        
+        ts=dateTime.timestamp()
+        _date=str(date.fromtimestamp(ts))
+
         patient.name=form.newname.data
         patient.age=form.newage.data
         patient.address=form.newaddress.data
         patient.city=form.city.data
         patient.bed=form.bed.data
         patient.state=form.state.data
-        patient.last_updated=dateTime
+        patient.last_updated=_date
         db.session.commit()
         print('updated')
         flash('Your Patient has been updated!', 'success')
@@ -170,256 +177,53 @@ def profile_patient(post_id):
     form.address.data = patient.address
     return render_template('patient/profile_patient.html',post_id=post_id, legend='Patient Information',title='Profile',form=form)
 
-
-#---------------------------------------------------------------------------------------------------#
-#account section
-
-@app.route("/createaccount", methods=['GET', 'POST'])
+@app.route("/status/<tags>/<int:post_id>",methods=['POST','GET'])
 @login_required
-def create_account():
-
-    
-    form = AccountForm()
-    if form.validate_on_submit():
-        caccount=Account.query.filter_by(acid=form.cid.data).filter_by(accounttype='1').first()
-        saccount=Account.query.filter_by(acid=form.cid.data).filter_by(accounttype='2').first()
-        if caccount==None:
-            tz = pytz.timezone("Asia/Kolkata")
-            dateTime = tz.localize(datetime.now(), is_dst=None)
-            acc=Account(last_updated=dateTime,accounttype=form.acctype.data,balance=form.deposit.data,acid=form.cid.data,status='Active')
-            db.session.add(acc)
-            db.session.commit()
-            flash("Account Created",'success')
-        elif saccount==None:
-            tz = pytz.timezone("Asia/Kolkata")
-            dateTime = tz.localize(datetime.now(), is_dst=None)
-            acc=Account(last_updated=dateTime,accounttype=form.acctype.data,balance=form.deposit.data,acid=form.cid.data,status='Active')
-            db.session.add(acc)
-            db.session.commit()
-            flash("Account Created",'success')
-        else:
-
-            flash("Account Exist",'danger')
-        
-    print(form.errors)
-    return render_template('account/create_account.html',legend='Create Account', title='Create Account', form=form)
-
- 
-
-
-@app.route("/searchaccount/<tag>", methods=['GET', 'POST'])
-@login_required
-def search_account(tag):
-    form=SearchAccountrForm()
-    if form.validate_on_submit():
-        
-        if form.cid.data==None:
-            account=Account.query.filter_by(aid=form.aid.data).first()
-            if account==None:
-                flash('Doesnt exist','danger')
-                return redirect(url_for('home'))
-        else:
-            account=Account.query.filter_by(acid=form.cid.data).first()
-            if account==None:
-                flash('Doesnt exist','danger')
-                return redirect(url_for('home'))
-        flash('Account found!', 'success')
-        if tag =='delete':
-            return redirect(url_for('delete_account',post_id=account.aid))
-        elif tag=='deposit':
-             return redirect(url_for('deposit',post_id=account.aid))
-        elif  tag=='withdraw':
-            return redirect(url_for('withdraw',post_id=account.aid))
-        elif tag=='transfer':
-            return redirect(url_for('transfer',post_id=account.aid))
-        elif tag=='statement':
-            return redirect(url_for('statement',post_id=account.aid))
-        else:
-            flash('Url does not exist','danger')   
-    else:  
-        
-        return render_template('account/search_account.html',title='search account',form=form)   
-    
-
-
-
-@app.route("/createaccount/<int:post_id>/delete", methods=['GET', 'POST'])
-@login_required
-def delete_account(post_id):
-    account = Account.query.get_or_404(post_id)
-    form=AccountForm()
-    form.aid.data=account.aid
-    form.acctype.data=account.accounttype
-    print(form.errors)
-    return render_template('account/delete_account.html',account=account,title='Delete accouunt',legend='Delete account',form=form)
-
-
-
-
-@app.route("/account/<int:post_id>/delete", methods=['GET', 'POST'])
-def removeAccount(post_id):
-    account = Account.query.get_or_404(post_id)
-    db.session.delete(account)
-    db.session.commit()
-    flash('Your Account has been deleted!', 'success')
-    return redirect(url_for('home'))
-
-@app.route("/profile_account/<int:post_id>", methods=['GET', 'POST'])
-@login_required
-def profile_account(post_id):
-    account = Account.query.filter_by(aid=post_id).first_or_404()
-    form=AccountForm()
-    form.aid.data=account.aid
-    form.acctype.data=account.accounttype
-    form.cid.data=account.acid
-    form.deposit.data=account.balance
-    return render_template('account/profile_account.html',post_id=post_id, legend='Account Information',title='Profile',form=form)
-
-
-#----------------------------------------------------------------------------------------------#
-#operations   
-@app.route("/searchaccount/<int:post_id>/deposit",methods=['POST','GET'])
-@login_required
-def deposit(post_id):
-    account = Account.query.get_or_404(post_id)
-
-    
-    form = DepoWithdrawForm(acctype=account.accounttype)
-    if form.validate_on_submit():
-        a=datetime.now()
-        ts=a.timestamp()
-        _date=str(date.fromtimestamp(ts))
-
-        account.balance=account.balance+form.deposit.data
-        accoperation=Accountoperation(message="deposit",last_updated=_date,aaccounttype=account.accounttype,ccid=account.acid,aaid=account.aid,amount=form.deposit.data)
-        db.session.add(accoperation)
-        db.session.commit()
-        flash('Amount desposited!', 'success')
-        
-    else:
-        form.cid.data = account.acid
-        form.aid.data = account.aid
-        form.balance.data=account.balance
-    return render_template('account/deposit_withdraw.html',label='Deposit Amount' ,title='Deposit',form=form)
-
-    
-@app.route("/searchaccount/<int:post_id>/withdraw",methods=['POST','GET'])
-@login_required
-def withdraw(post_id):
-    account = Account.query.get_or_404(post_id)
-    form = DepoWithdrawForm(acctype=account.accounttype)
-    if form.validate_on_submit():
-        a=datetime.now()
-        ts=a.timestamp()
-        _date=str(date.fromtimestamp(ts))
- 
-        account.balance=account.balance-form.deposit.data
-        accoperation=Accountoperation(message="withdraw",last_updated=_date,aaccounttype=account.accounttype,ccid=account.acid,aaid=account.aid,amount=form.deposit.data)
-        db.session.add(accoperation)
-        db.session.commit()
-        flash('Amount withdrawed!', 'success')
-        
-            
-    else:
-        
-        form.cid.data = account.acid
-        form.aid.data = account.aid
-        
-        form.balance.data=account.balance
-        print(form.errors)
-    return render_template('account/deposit_withdraw.html',label='Withdraw Amount' ,title='Withdraw',form=form)
-
-
-
-
-@app.route("/transfer/<int:post_id>",methods=['POST','GET'])
-@login_required
-def transfer(post_id):
-    account=Account.query.get_or_404(post_id)
-    patient=Patient.query.filter_by(cid=account.acid).first()
-    form = TransferForm()
-    if form.validate_on_submit():
-        if form.sourcetype.data=='1':
-            a=datetime.now()
-            ts=a.timestamp()
-            _date=str(date.fromtimestamp(ts))
-
-
-            saccount=Account.query.filter_by(acid=patient.cid).filter_by(accounttype='1').first()
-            taccount=Account.query.filter_by(acid=patient.cid).filter_by(accounttype='2').first()
-            saccount.balance=saccount.balance-form.transferamt.data
-            taccount.balance=taccount.balance+form.transferamt.data
-
-            accoperation=Accountoperation(message="transfer",last_updated=_date,aaccounttype=saccount.accounttype,ccid=saccount.acid,aaid=saccount.aid,amount=form.transferamt.data)
-            db.session.add(accoperation)
-            db.session.commit()
-            
-            form.srcBalbf.data=saccount.balance+form.transferamt.data
-            form.srcBalaf.data=0 if form.transferamt.data==None else (saccount.balance)
-            form.trgBalbf.data=taccount.balance-form.transferamt.data
-            form.trgBalaf.data=0 if form.transferamt.data==None else (taccount.balance)
-            print(account)
-        elif form.sourcetype.data=='2':
-            a=datetime.now()
-            ts=a.timestamp()
-            _date=str(date.fromtimestamp(ts))
-
-            saccount=Account.query.filter_by(acid=patient.cid).filter_by(accounttype='2').first()
-            taccount=Account.query.filter_by(acid=patient.cid).filter_by(accounttype='1').first()
-            saccount.balance=saccount.balance-form.transferamt.data
-            taccount.balance=taccount.balance+form.transferamt.data
-
-            accoperation=Accountoperation(message="transfer",last_updated=_date,aaccounttype=saccount.accounttype,ccid=saccount.acid,aaid=saccount.aid,amount=form.transferamt.data)
-            db.session.add(accoperation)
-            db.session.commit()
-
-            db.session.commit()
-            form.srcBalbf.data=saccount.balance+form.transferamt.data
-            form.srcBalaf.data=0 if form.transferamt.data==None else (saccount.balance)
-            form.trgBalbf.data=taccount.balance-form.transferamt.data
-            form.trgBalaf.data=0 if form.transferamt.data==None else (taccount.balance)
-            print(account)  
-        
-
-        flash('Amount transfered!', 'success')
-        print('transfered')
-    
-    form.cid.data=account.acid
-    print(form.errors)
-    
-
-    return render_template('account/transfer.html',label='Withdraw Amount',legend='Transfer amount' ,title='Withdraw',form=form)
-
-@app.route("/statement/<int:post_id>",methods=['POST','GET'])
-@login_required
-def statement(post_id):
-    account=Account.query.get_or_404(post_id)
-    acop=Accountoperation.query.filter_by(ccid=account.acid)
-    form = AccountStatementForm()
-    if form.validate_on_submit():
-        
-        flash('Amount Statements!', 'success')
-        print('show table')
-        
-
-    form.aid.data=account.aid
-    if account.accounttype=='1':
-        form.atype.data='Current'
-    elif account.accounttype=='2':
-        form.atype.data='Savings'    
-      
-    print(form.errors)
-    return render_template('account/accstatement.html',label='Withdraw Amount',accs=acop,legend='Account statement' ,title='Withdraw',form=form)
-
-@app.route("/status/<tags>",methods=['POST','GET'])
-@login_required
-def status(tags):
+def status(tags,post_id):
     if tags=='patient':
         data=Patient.query.all()
+        return render_template('patient/all_patient.html',tag=tags,items=data,legend='All Patient' ,title='Patients')
+    elif tags=='bill':
+        data=Patient.query.filter_by(id=post_id).first()
+        medData=Medicine.query.filter_by(pid=data.id).all()
+        diagData=Diagonastic.query.filter_by(pid=data.id).all()
+        return render_template('patient/bill_patient.html',tag=tags,pat=data,medItems=medData,diagItems=diagData,legend='All Patient' ,title='Patients')    
+    elif tags=='med':
+        data=Patient.query.filter_by(id=post_id).first()
+        medData=Medicine.query.filter_by(pid=data.id).all()
         
-    return render_template('patient/all_patient.html',tag=tags,items=data,legend='All Patient' ,title='Patients')
+        return render_template('medTest/medicine_patient.html',pat=data,medItems=medData,legend='All Patient' ,title='Patients')    
+    
+    
 
-    
-    
+@app.route("/newmedicine/<int:post_id>",methods=['POST','GET'])
+@login_required
+def newMedicine(post_id):
+    form=MedicineForm()
+    data=Patient.query.filter_by(id=post_id).first()
+    medMaster=MedicineMaster.query.all()
+    if form.validate_on_submit():
+        
+        return redirect(url_for('searchMedicine',medname=form.searchMed.data,post_id=data.id))
+    print(form.errors)
+    return render_template('medTest/new_medicine.html',qty='disable',pat=data,medMast=medMaster,legend='All Patient' ,title='Patients',form=form)    
+
+@app.route("/searchmedicine/<medname>/<int:post_id>",methods=['POST','GET'])
+@login_required
+def searchMedicine(medname,post_id):
+    form=MedicineForm()
+    data=Patient.query.filter_by(id=post_id).first()
+    medMaster=MedicineMaster.query.filter_by(mName=medname).all()
+    _medMaster=MedicineMaster.query.filter_by(mName=medname).first()
+    if form.validate_on_submit():
+        _medMaster.qty=_medMaster.qty - form.quantity.data
+        med= Medicine(mName=_medMaster.mName,qty=form.quantity.data,rate=_medMaster.rate,amount=(_medMaster.rate * form.quantity.data),pid=data.id)
+        db.session.add(med)
+        db.session.commit()
+        return redirect(url_for('status',tags='med',post_id=data.id))
+    print(form.errors)
+    return render_template('medTest/new_medicine.html',pat=data,qty='enable',medMast=medMaster,legend='All Patient' ,title='Patients',form=form)    
+
+#---------------------------------------------------------------------------------------------------#
 
 

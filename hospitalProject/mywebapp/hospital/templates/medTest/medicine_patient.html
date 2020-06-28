@@ -1,0 +1,71 @@
+{%extends 'layout.html'%}
+{%block content%}
+ 
+        <div style="display: inline-block;">
+            <div><h3>
+                Patient Billing
+            </h3></div>
+            <div id="patienttables" style="padding-bottom: 10px; display: block;">
+                <table>
+                    <tr>
+                    <th>Patient Id</th>
+                    <th>Patient SSN Id</th>
+                    <th>Status</th>
+                    <th>Bed Type</th>
+                    <th>Date of admission</th>
+                    
+                    </tr>
+                    
+    
+                        <tr>
+                            <td>{{pat.id}}</td>
+                            <td>{{pat.ssnid}}</td>
+                            <td>{{pat.status}}</td>
+                            <td>{{pat.bed}}</td>
+                            <td>{{pat.doj}}</td>
+                        </tr>
+                    
+                    
+                    
+                </table>
+                
+            </div>
+    
+        
+            <div><h3>
+                Medicine Issued
+            </h3></div>
+            <div id="patienttables" style="padding-bottom: 10px; display: block;">
+                <table>
+                    <tr>
+                    <th>Medicine</th>
+                    <th>Quanty</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
+                    </tr>
+                    {% for med in medItems%}
+                        {%if med.pid== pat.id%}
+                            <tr>
+                                <td>{{med.mName}}</td>
+                                <td>{{med.qty}}</td>
+                                <td>{{med.rate}}</td>
+                                <td>{{med.amount}}</td>
+                            </tr>
+                        {%endif%}
+                        
+                    {%endfor%}
+                    
+                    
+                </table>
+                
+            </div>
+    
+            
+            <div class="row justtify-content-end">
+               
+               <a href="{{ url_for('newMedicine',post_id=pat.id) }}"> <button type="button" class="round"  style="margin-left: 15px;margin-right: 15px;margin-bottom: 5px;" class="btn-info">Issue new Medicine</button></a>
+                
+            </div>
+        </div>
+
+{%endblock content%}

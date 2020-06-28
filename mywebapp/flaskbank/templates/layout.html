@@ -23,8 +23,8 @@
         <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
           <div class="container">
             <a class="navbar-brand mr-4" href="/">
-              <img class="rounded-circle article-img" src="{{ url_for('static', filename='photos/hospital.png' ) }}">
-              ABC Hospital Management System</a>
+              <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/bank.jpg' ) }}">
+              XYZ Bank</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
@@ -32,62 +32,68 @@
              
               <div class="navbar-nav mr-auto ">
                 {% if current_user.is_authenticated %}
-                  {% if current_user.utype=='regExec' %}
+                  {% if current_user.username=='Executive' %}
                     <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
                     
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Patient Management
+                        Customer Management
                       </a>
                       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ url_for('createPatient') }}">Create new Patient</a>
-                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='update') }}">Update Patient</a>
-                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='delete') }}">Delete Patient</a>
+                        <a class="dropdown-item" href="{{ url_for('createCustomer') }}">Create new Customer</a>
+                        <a class="dropdown-item" href="{{ url_for('search_customer',tag='update') }}">Update customer</a>
+                        <a class="dropdown-item" href="{{ url_for('search_customer',tag='delete') }}">Delete customer</a>
                       </div>
                     </li>
-                   
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Patient Details
+                        Account Management
                       </a>
                       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='profile') }}">Search Patient</a>
-                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='bill') }}">Billing Deatils</a>
-                        <a class="dropdown-item" href="{{ url_for('status',tags='patient',post_id='0') }}">View all Patients</a>
+                        <a class="dropdown-item" href="{{ url_for('create_account') }}">Create Account</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='delete') }}">Delete Account</a>
+                        
+                      </div>
+                    </li>
+    
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Status Details
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('status',tags='cust') }}">Customer Status</a>
+                        <a class="dropdown-item" href="{{ url_for('status',tags='acc') }}">Account Staus</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='statement') }}">Account Statement</a>
                        
                       </div>
                     </li>
-                  {%elif current_user.utype=='pharmacist'%}
+                  {%elif current_user.username=='Teller'%}
                     <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
-                    
                     
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Manage medicines
+                        Status Details
                       </a>
                       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ url_for('search_patient',tag='med') }}">View Patient</a>
-                        <a class="dropdown-item" href="{{ url_for('status',tags='acc',post_id='0') }}">Add new medicine</a>
-                        
+                        <a class="dropdown-item" href="{{ url_for('status',tags='cust') }}">Customer Status</a>
+                        <a class="dropdown-item" href="{{ url_for('status',tags='acc') }}">Account Staus</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='statement') }}">Account Statement</a>
+                      
                       </div>
                     </li>
-     
-                  {%elif current_user.utype=='diagExec'%}
-                    <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
-                      
-                      
+    
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Manage Diagonastic services
+                        Account Operations
                       </a>
                       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ url_for('status',tags='cust',post_id='0') }}">View Patient</a>
-                        <a class="dropdown-item" href="{{ url_for('status',tags='acc',post_id='0') }}">Add new diagonastic(test)</a>
-                        
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='deposit') }}">Deposit</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='withdraw') }}">Withdraw</a>
+                        <a class="dropdown-item" href="{{ url_for('search_account',tag='transfer') }}">Transfer</a>
                       </div>
                     </li>
-   
                   {%endif%}
+                  
   
                   
                   <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
@@ -165,7 +171,7 @@
         }
     });
     $('#showstm').click(function(){
-      //shows statements of patient account
+      //shows statements of customer account
       var index=document.getElementById('lasttx').innerHTML; 
       document.getElementById("tables").style.display = "block"; 
     });

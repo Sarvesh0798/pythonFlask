@@ -30,8 +30,8 @@ class Patient(db.Model):
     state= db.Column(db.String(100), nullable=False)
     bed = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(50), nullable=False)
-    doj = db.Column(db.DateTime,nullable = False, default = datetime.utcnow)
-    dodc=db.Column(db.DateTime)
+    doj = db.Column(db.String(50),nullable = False)
+    dodc=db.Column(db.String(50))
     medrelo=db.relationship('Medicine',backref='diag',lazy=True)
     diagrelo=db.relationship('Diagonastic',backref='med',lazy=True)
 
@@ -49,11 +49,32 @@ class Medicine(db.Model):
     def __repr__(self):
         return f"Medicine('{self.mName}','{self.qty}','{self.rate}','{self.amount}')"
 
-class Diagonastic(db.Model):
+class MedicineMaster(db.Model):
+    __tablename__ = 'MedicineMaster'
+    mName = db.Column(db.String(20),primary_key=True ,nullable=False)
+    qty = db.Column(db.Integer, nullable=False)
+    rate = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String, )
     
+    
+    def __repr__(self):
+        return f"Medicine('{self.mName}','{self.qty}','{self.rate}','{self.status}')"
+ 
+
+class Diagonastic(db.Model):
+    __tablename__='Diagonastic'
     dName = db.Column(db.String(20),primary_key=True ,nullable=False)
     amt = db.Column(db.Integer, nullable=False)
     pid = db.Column(db.Integer, db.ForeignKey('Patient.id'), nullable=False)
+    
+    def __repr__(self):
+        return f"Diagonastic('{self.dName}','{self.amt}')"
+
+class DiagonasticMaster(db.Model):
+    __tablename__='DiagonasticMaster'
+    dName = db.Column(db.String(20),primary_key=True ,nullable=False)
+    amt = db.Column(db.Integer, nullable=False)
+    
     
     def __repr__(self):
         return f"Diagonastic('{self.dName}','{self.amt}')"

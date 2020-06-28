@@ -13,76 +13,6 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
-#operation section
-
-class DepoWithdrawForm(FlaskForm):
-    cid = IntegerField('Patient Id', validators=[DataRequired()])
-    aid = IntegerField('Account Id', validators=[DataRequired()])
-    acctype =SelectField('Account Type',choices=[('1','current'),('2','savings')],validate_choice=False)
-    deposit = IntegerField('Deosit Amount', validators=[DataRequired()])
-    balance = IntegerField('Balance', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-    
-    def validate_deposit(self,deposit):
-        if not deposit.data>0:
-            raise ValidationError('Enter amount greater than 0')
-
-class TransferForm(FlaskForm):
-    cid = IntegerField('Patient Id', validators=[DataRequired()])
-    sourcetype =SelectField('Source Account Type',choices=[('1','current'),('2','savings')])
-    targettype =SelectField('Target Account Type',choices=[('1','current'),('2','savings')])
-    transferamt = IntegerField('Transfer Amount', validators=[DataRequired()])
-    srcBalbf = IntegerField('Source Balance before')
-    srcBalaf = IntegerField('Source Balance after')
-    trgBalbf = IntegerField('Target Balance before')
-    trgBalaf = IntegerField('Targer Balance after')
-
-    transfer = SubmitField('Transfer')
-    
-   
-    def validate_transferamt(self,transferamt):
-        
-        if not transferamt.data>0:
-            raise ValidationError('patient does not exist.')
-#--------------------------------------------------------------------------------------------------------
-#acount section
-
-class AccountForm(FlaskForm):
-    cid = IntegerField('Patient Id', validators=[DataRequired()])
-    aid = IntegerField('Account Id')
-    acctype =SelectField('Account Type',choices=[('1','current'),('2','savings')], validators=[DataRequired()])
-    deposit = IntegerField('Deosit Amount', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-    search = SubmitField('Search')
-
-    
-    def validate_cid(self,cid):
-        patient = Patient.query.filter_by(cid=cid.data).first()
-        if not patient:
-            raise ValidationError('patient does not exist.')
-    def validate_deposit(self,deposit):
-        if not deposit.data>0:
-            raise ValidationError('Enter amount greater than 0')
-
-
-class SearchAccountrForm(FlaskForm):
-    cid = IntegerField('Patient Id', validators=[Optional()])
-    aid = IntegerField('Account Id', validators=[Optional()])
-    search = SubmitField('Search')
-
-    def validate_cid(self,cid):
-        account=Account.query.filter_by(acid=cid)
-        if not account:
-            raise ValidationError('patient does not exist.')
-
-class AccountStatementForm(FlaskForm):
-    aid = IntegerField('Account ID', )
-    atype= StringField('Account Type')
-    lasttr =SelectField('Last N transcations',choices=[('1','1'),('2','2'),('3','3'),('4','4'),('5','5')], validators=[DataRequired()])
-    startdate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
-    enddate=DateField('StartDate',format='%Y/%m/%d', validators=[DataRequired()])
-    submit=SubmitField('submit')
-
 #-----------------------------------------------------------------------------------------------------------
 #patient section
 class SearchPatientForm(FlaskForm):
@@ -156,7 +86,9 @@ class ProfilePatientForm(FlaskForm):
     doj=StringField('Date of  admission',)
     dodc=StringField('Date of discharge',)
 
-    
-   
-    
+class MedicineForm(FlaskForm):
+    searchMed = StringField('Search Medicine',validators=[Optional()])
+    quantity = IntegerField('Quantity',validators=[Optional(), NumberRange(min=1, max=200)] )
+    searchbtn = SubmitField('Search')
+    addMed = SubmitField('Add medicine')
     

@@ -1,0 +1,79 @@
+{%extends 'layout.html'%}
+{%block content%}
+ 
+
+
+    {%if tag=="cust"%}
+        <div><h3>
+            Customer Status
+        </h3></div>
+        <div id="customertables" style="padding-bottom: 10px; display: block;">
+            <table>
+                <tr>
+                <th>Customer Id</th>
+                <th>Customer SSN Id</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Last updated</th>
+                <th>Operations</th>
+                <th>View Profile</th>
+                </tr>
+                {% for item in items%}
+
+                    <tr>
+                        <td>{{item.cid}}</td>
+                        <td>{{item.ssnid}}</td>
+                        <td>{{item.status}}</td>
+                        <td>GG</td>
+                        <td>{{item.last_updated}}</td>
+                        <td><a href="/">refresh</a></td>
+                        <td><a href="{{ url_for('profile_customer',post_id=item.cid) }}">veiw profile</a></td>
+                    </tr>
+                {%endfor%}
+                
+                
+            </table>
+            
+        </div>
+
+    {%elif tag=='acc'%}
+        <div><h3>
+            Account Status
+        </h3></div>
+        <div id="accounttables" style="padding-bottom: 10px; display: block;">
+            <table>
+                <tr>
+                <th>Customer Id</th>
+                <th>Customer SSN Id</th>
+                <th>Status</th>
+                <th>Type</th>
+                <th>Last updated</th>
+                <th>Operations</th>
+                <th>View Profile</th>
+                </tr>
+                {% for item in items%}
+
+                    <tr>
+                        <td>{{item.custm.cid}}</td>
+                        <td>{{item.custm.ssnid}}</td>
+                        <td>{{item.status}}</td>
+                        <td>{%if item.accounttype=="1"%}
+                            Current
+                            {%else%}
+                            Savings
+                            {%endif%}
+                        </td>
+                        <td>{{item.last_updated}}</td>
+                        <td><a href="">refresh</a></td>
+                        <td><a href="{{ url_for('profile_account',post_id=item.aid) }}">veiw profile</a></td>
+                    </tr>
+                {%endfor%}
+                
+                
+            </table>
+            
+        </div>
+    {%endif%}
+
+
+{%endblock content%}

@@ -13,8 +13,8 @@
                 <th>Patient Id</th>
                 <th>Patient SSN Id</th>
                 <th>Status</th>
-                <th>Message</th>
-                <th>Last updated</th>
+                <th>Bed Type</th>
+                <th>Date of admission</th>
                 <th>Operations</th>
                 <th>View Profile</th>
                 </tr>
@@ -24,7 +24,7 @@
                         <td>{{item.id}}</td>
                         <td>{{item.ssnid}}</td>
                         <td>{{item.status}}</td>
-                        <td>GG</td>
+                        <td>{{item.bed}}</td>
                         <td>{{item.doj}}</td>
                         <td><a href="/">refresh</a></td>
                         <td><a href="{{ url_for('profile_patient',post_id=item.id) }}">veiw profile</a></td>

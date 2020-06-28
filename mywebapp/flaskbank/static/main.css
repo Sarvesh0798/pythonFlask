@@ -11,39 +11,17 @@ html,body {
 h1, h2, h3, h4, h5, h6 {
   color: #444444;
 }
-
 .page-footer{
-  background-color: #BF360C;
+  background-color: #5f788a;
 }
 .bg-steel {
-  background-color: #D84315;
+  background-color: #5f788a;
 }
 
-button.round{
-  border-radius:20px;
-  border:3px solid tomato;
-}
 
-.btn {
-  display: inline-block;
-  background: rgb(220,220,220);
-  font-weight: bold;
-  color: rgb(120,120,120);
-  border:3px solid tomato;
-  outline: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: ease .3s;
-}
-
-.btn:hover {
-  background: tomato;
-  color: #ffffff;
-}
 .site-header .navbar-nav .nav-link {
   color: #cbd5db;
 }
-
 
 .site-header .navbar-nav .nav-link:hover {
   color: #ffffff;
